@@ -6,16 +6,28 @@ import { PostListingAuthBanner } from "@/components/listings/PostListingAuthBann
  */
 export default function NewListingPage() {
   return (
-    <main className="container max-w-2xl flex-1 px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Post a listing</h1>
-        <p className="mt-2 text-muted-foreground">
-          Add photos, set your price, and submit. New ads are <strong>pending</strong> until
-          an admin approves them. You can still open your ad from the link after submit.
-        </p>
-      </div>
-      <PostListingAuthBanner />
-      <ListingForm />
-    </main>
+    <div className="bg-muted/30 py-12 min-h-full">
+      <main className="container max-w-3xl px-4">
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-4">Post Your Listing</h1>
+          <p className="mx-auto max-w-xl text-lg text-muted-foreground">
+            Connect with thousands of buyers. Add clear photos and details to get the best offers.
+          </p>
+        </div>
+        
+        <div className="glass rounded-3xl p-8 shadow-xl">
+          <PostListingAuthBanner />
+          <div className="mt-8">
+            <ListingForm />
+          </div>
+        </div>
+        
+        <div className="mt-12 text-center text-sm text-muted-foreground">
+          <p>
+            New ads are <strong>pending</strong> until an admin approves them for safety.
+          </p>
+        </div>
+      </main>
+    </div>
   )
 }
