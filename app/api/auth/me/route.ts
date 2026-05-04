@@ -1,20 +1,12 @@
 import { Types } from "mongoose"
 import { connectDB } from "@/lib/db"
 import { verifyAccessToken } from "@/lib/auth"
+import { getBearerToken } from "@/lib/request-auth"
 import { successJson, errorJson } from "@/lib/api-response"
 import { User } from "@/models/User"
 import { toSafeUser } from "@/lib/user-serialize"
 
 export const runtime = "nodejs"
-
-/**
- * Extracts Bearer token from Authorization header.
- */
-function getBearerToken(req: Request): string | null {
-  const h = req.headers.get("authorization")
-  if (!h?.startsWith("Bearer ")) return null
-  return h.slice(7).trim() || null
-}
 
 /**
  * GET /api/auth/me — current user from access token.

@@ -21,23 +21,26 @@ export function Navbar() {
           >
             PasturePro
           </Link>
-          <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
+          <nav
+            className="flex max-w-[min(100%,280px)] flex-wrap items-center gap-x-0.5 gap-y-1 sm:max-w-none sm:gap-x-1"
+            aria-label="Main"
+          >
             <Link
               href="/listings"
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:py-2 sm:text-sm"
             >
               Listings
             </Link>
             <Link
               href="/listings/new"
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:py-2 sm:text-sm"
             >
               Post an ad
             </Link>
             {ready && isAuthenticated ? (
               <Link
                 href="/dashboard"
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:py-2 sm:text-sm"
               >
                 Dashboard
               </Link>
@@ -45,7 +48,7 @@ export function Navbar() {
             {ready && user?.role === "admin" ? (
               <Link
                 href="/admin"
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:py-2 sm:text-sm"
               >
                 Admin
               </Link>
