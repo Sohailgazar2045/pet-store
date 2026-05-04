@@ -1,3 +1,5 @@
+import Link from "next/link"
+import { buttonVariants } from "@/components/ui/button"
 import { Hero } from "@/components/sections/Hero"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ShieldCheck } from "lucide-react"
@@ -195,6 +197,34 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Recommended for You Section */}
+      <section className="bg-muted/30 section-padding">
+        <div className="container">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="max-w-xl">
+              <h2 className="mb-4">Recommended <br /><span className="text-gradient">for You</span></h2>
+              <p className="text-lg">Personalized picks based on the latest activity in the marketplace.</p>
+            </div>
+            <Link 
+              href="/listings" 
+              className={cn(buttonVariants({ variant: "outline" }), "rounded-full px-8 font-black border-primary text-primary hover:bg-primary hover:text-white transition-all")}
+            >
+              See All Listings
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+             {/* Note: In a real app, this would be fetched from the API. 
+                 Using ListingCard with simulated data or just a message if no data. */}
+             <div className="col-span-full py-20 text-center glass rounded-[3rem] border-dashed border-white/40">
+                <p className="text-muted-foreground font-medium text-lg">
+                  Sign in to see personalized recommendations or browse all listings.
+                </p>
+                <Link href="/listings" className="text-primary font-black mt-4 inline-block hover:underline">Explore Marketplace →</Link>
+             </div>
           </div>
         </div>
       </section>
