@@ -1,12 +1,12 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 
 type AuthGuardProps = {
   children: React.ReactNode
-  /** Where to send unauthenticated users (default `/login`). */
+  /** Base login path (default `/login`); current path is appended as `from`. */
   loginHref?: string
 }
 
@@ -15,14 +15,19 @@ type AuthGuardProps = {
  */
 export function AuthGuard({ children, loginHref = "/login" }: AuthGuardProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { ready, isAuthenticated } = useAuth()
 
   useEffect(() => {
     if (!ready) return
     if (!isAuthenticated) {
-      router.replace(loginHref)
+      const base = loginHref.split("?")[0] ?? "/login"
+      const search = new URLSearchParams()
+      search.set("from", pathname)
+      const qs = search.toString()
+      router.replace(qs ? `${base}?${qs}` : base)
     }
-  }, [ready, isAuthenticated, router, loginHref])
+  }, [ready, isAuthenticated, router, loginHref, pathname])
 
   if (!ready || !isAuthenticated) {
     return (

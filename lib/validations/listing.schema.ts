@@ -85,6 +85,10 @@ export type ListingCreateInput = z.infer<typeof listingCreateSchema>
 /** Partial update — omit fields you do not change. At least one field expected at route layer. */
 export const listingUpdateSchema = listingCreateFieldsSchema
   .partial()
+  .extend({
+    /** Sellers may set `sold` on active listings via PUT /api/listings/[id]. */
+    status: z.enum(["sold"]).optional(),
+  })
   .superRefine((data, ctx) => {
     if (data.category != null && data.subcategory != null) {
       const allowed =

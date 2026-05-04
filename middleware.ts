@@ -83,6 +83,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname.startsWith("/api/me")) {
+    if (!token) return jsonUnauthorized()
+    const user = await verifyAccess(token)
+    if (!user) return jsonUnauthorized()
+    return NextResponse.next()
+  }
+
   if (pathname.startsWith("/dashboard")) {
     if (!token) {
       const login = new URL("/login", request.url)
@@ -128,6 +135,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/api/me/:path*",
     "/admin/:path*",
     "/api/admin/:path*",
     "/api/messages/:path*",

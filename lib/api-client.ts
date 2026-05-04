@@ -45,3 +45,64 @@ export async function apiGet<TData>(
   })
   return res.json() as Promise<ApiResponse<TData>>
 }
+
+/**
+ * PUT JSON and parse API envelope.
+ */
+export async function apiPut<TData, TBody extends object = Record<string, unknown>>(
+  path: string,
+  body: TBody,
+  opts?: FetchOpts
+): Promise<ApiResponse<TData>> {
+  const headers: HeadersInit = { ...JSON_HEADERS }
+  if (opts?.token) {
+    ;(headers as Record<string, string>)["Authorization"] = `Bearer ${opts.token}`
+  }
+  const res = await fetch(path, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body),
+    credentials: "include",
+  })
+  return res.json() as Promise<ApiResponse<TData>>
+}
+
+/**
+ * PATCH JSON and parse API envelope.
+ */
+export async function apiPatch<TData, TBody extends object = Record<string, unknown>>(
+  path: string,
+  body: TBody,
+  opts?: FetchOpts
+): Promise<ApiResponse<TData>> {
+  const headers: HeadersInit = { ...JSON_HEADERS }
+  if (opts?.token) {
+    ;(headers as Record<string, string>)["Authorization"] = `Bearer ${opts.token}`
+  }
+  const res = await fetch(path, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(body),
+    credentials: "include",
+  })
+  return res.json() as Promise<ApiResponse<TData>>
+}
+
+/**
+ * DELETE and parse API envelope.
+ */
+export async function apiDelete<TData>(
+  path: string,
+  opts?: FetchOpts
+): Promise<ApiResponse<TData>> {
+  const headers: HeadersInit = {}
+  if (opts?.token) {
+    ;(headers as Record<string, string>)["Authorization"] = `Bearer ${opts.token}`
+  }
+  const res = await fetch(path, {
+    method: "DELETE",
+    headers,
+    credentials: "include",
+  })
+  return res.json() as Promise<ApiResponse<TData>>
+}

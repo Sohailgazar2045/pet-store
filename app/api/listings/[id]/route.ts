@@ -127,6 +127,20 @@ export async function PUT(
   if (patch.age !== undefined) doc.age = patch.age
   if (patch.tags !== undefined) doc.tags = patch.tags
 
+  if (patch.status !== undefined) {
+    if (patch.status !== "sold") {
+      return errorJson("Invalid status", 400, "INVALID_STATUS")
+    }
+    if (doc.status !== "active") {
+      return errorJson(
+        "Only active listings can be marked as sold",
+        400,
+        "INVALID_TRANSITION"
+      )
+    }
+    doc.status = "sold"
+  }
+
   if (patch.location) {
     const cur = (
       doc.toObject?.() as { location?: Record<string, unknown> }
