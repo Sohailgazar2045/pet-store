@@ -1,5 +1,13 @@
 import mongoose from "mongoose"
 
+// Ensure models are registered
+import "@/models/User"
+import "@/models/Listing"
+import "@/models/Favorite"
+import "@/models/Conversation"
+import "@/models/Message"
+import "@/models/Report"
+
 /**
  * Reuses a single MongoDB connection across Next.js hot reloads in development.
  */

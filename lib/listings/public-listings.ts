@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/db"
 import { Listing } from "@/models/Listing"
+import "@/models/User"
 import { DEFAULT_LISTING_IMAGE } from "@/lib/constants/default-listing-image"
 import type { ListingsQuery } from "@/lib/validations/listing.query"
 import type { ListingImage, ListingStatus } from "@/types"

@@ -19,6 +19,7 @@ import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/validations/
 import type { SafeUser } from "@/types"
 import { useAuth } from "@/hooks/useAuth"
 import { z } from "zod"
+import { User, Phone, MapPin, Mail, Save, Loader2 } from "lucide-react"
 
 /** Full form shape; mapped to `profileUpdateSchema` on submit. */
 const profileFormSchema = z.object({
@@ -86,92 +87,153 @@ export function ProfileForm({ user }: ProfileFormProps) {
       toast.error(res.error)
       return
     }
-    toast.success("Profile updated")
+    toast.success("Identity profile updated")
     await refreshUser()
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-md space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input autoComplete="name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="space-y-1.5">
-          <p className="text-sm font-medium leading-none">Email</p>
-          <p className="rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-            {user.email}
-          </p>
-          <p className="text-xs text-muted-foreground">Email can’t be changed here.</p>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+        <div className="grid gap-12 lg:grid-cols-2">
+           <div className="space-y-8">
+              <div className="flex items-center gap-3 mb-2">
+                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <User className="size-5" />
+                 </div>
+                 <h3 className="text-xl font-black">Personal Details</h3>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Legal Name</     FormLabel>
+                    <FormControl>
+                      <Input 
+                        autoComplete="name" 
+                        className="h-14 rounded-2xl bg-white/50 border-white/40 font-bold px-6 focus:ring-primary/20" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-2">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Primary Contact Email</FormLabel>
+                <div className="flex items-center gap-4 h-14 px-6 rounded-2xl bg-muted/30 border border-transparent text-sm font-bold text-muted-foreground">
+                   <Mail className="size-4 opacity-50" />
+                   {user.email}
+                </div>
+                <p className="text-[10px] font-bold text-muted-foreground/60 italic pl-1">Authenticated via system login. Changes restricted.</p>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Hotline</FormLabel>
+                    <FormControl>
+                       <div className="relative">
+                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                          <Input 
+                            type="tel" 
+                            autoComplete="tel" 
+                            placeholder="+92…" 
+                            className="h-14 rounded-2xl bg-white/50 border-white/40 font-bold pl-14 pr-6 focus:ring-primary/20" 
+                            {...field} 
+                          />
+                       </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+           </div>
+
+           <div className="space-y-8">
+              <div className="flex items-center gap-3 mb-2">
+                 <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <MapPin className="size-5" />
+                 </div>
+                 <h3 className="text-xl font-black">Regional Logistics</h3>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                 <FormField
+                   control={form.control}
+                   name="city"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">City</FormLabel>
+                       <FormControl>
+                         <Input className="h-14 rounded-2xl bg-white/50 border-white/40 font-bold px-6" {...field} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="state"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Province</FormLabel>
+                       <FormControl>
+                         <Input className="h-14 rounded-2xl bg-white/50 border-white/40 font-bold px-6" {...field} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Operating Country</FormLabel>
+                    <FormControl>
+                      <Input className="h-14 rounded-2xl bg-white/50 border-white/40 font-bold px-6" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="p-6 rounded-[2rem] bg-primary/5 border border-primary/10">
+                 <p className="text-xs font-bold text-primary/80 leading-relaxed">
+                    Accuracy in location data helps our algorithm match your assets with local buyers, significantly reducing logistics friction.
+                 </p>
+              </div>
+           </div>
         </div>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone</FormLabel>
-              <FormControl>
-                <Input type="tel" autoComplete="tel" placeholder="+92…" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="space-y-4">
-          <p className="text-sm font-medium">Location</p>
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>State / Province</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+        <div className="flex justify-end pt-8 border-t border-white/20">
+           <Button 
+             type="submit" 
+             disabled={form.formState.isSubmitting}
+             className="h-16 px-12 rounded-full font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all"
+           >
+             {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 size-5 animate-spin" />
+                  Synchronizing...
+                </>
+             ) : (
+                <>
+                  <Save className="mr-2 size-5" />
+                  Save Changes
+                </>
+             )}
+           </Button>
         </div>
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Saving…" : "Save changes"}
-        </Button>
       </form>
     </Form>
   )
 }
+
