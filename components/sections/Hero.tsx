@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Search, MapPin } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -91,28 +90,25 @@ export function Hero() {
           
           <div className="relative flex-1 lg:max-w-xl w-full animate-in fade-in slide-in-from-right-12 duration-1000">
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)]">
-              <Image
-                src="/hero-pet.png"
-                alt="Happy Pets"
-                fill
-                className="object-cover"
-                priority
-              />
+              {/* Gradient placeholder — swap src="/hero-pet.png" once asset is added to /public */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-teal-50 to-green-200 flex items-center justify-center">
+                <span className="text-[9rem] select-none">🐕</span>
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
               <div className="absolute bottom-8 left-8 right-8 glass p-6 rounded-2xl shadow-2xl">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/50 shadow-lg relative">
-                    <Image src="/lifestyle-pet.png" alt="User" fill className="object-cover" />
+                  <div className="h-12 w-12 rounded-full border-2 border-white/50 shadow-lg bg-emerald-100 flex items-center justify-center text-2xl">
+                    🐾
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-black text-foreground leading-none">Buddy (Retriever)</p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Available Now • Lahore</p>
                   </div>
-                  <div className="text-primary font-black text-lg">$850</div>
+                  <div className="text-primary font-black text-lg">PKR 85,000</div>
                 </div>
               </div>
             </div>
-            
+
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/10 blur-[100px] -z-10 animate-pulse"></div>
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-orange-400/10 blur-[100px] -z-10"></div>
           </div>

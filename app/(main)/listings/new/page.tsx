@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { ListingForm } from "@/components/listings/ListingForm"
 import { PostListingAuthBanner } from "@/components/listings/PostListingAuthBanner"
 import { ShieldCheck, Camera, FileText, CheckCircle2 } from "lucide-react"
@@ -77,9 +78,9 @@ export default function NewListingPage() {
               <div className="glass p-10 rounded-[3rem] shadow-xl border-white/40 bg-primary text-white overflow-hidden relative group">
                  <h4 className="text-xl font-black mb-4 relative z-10">Need Help?</h4>
                  <p className="text-primary-foreground/90 font-medium mb-8 relative z-10 text-sm">Our expert listing consultants are available to help you craft the perfect ad.</p>
-                 <button className="w-full h-14 bg-white text-primary rounded-full font-black hover:scale-105 transition-all shadow-2xl relative z-10">
+                 <Link href="/contact" className="block w-full h-14 bg-white text-primary rounded-full font-black hover:scale-105 transition-all shadow-2xl relative z-10 flex items-center justify-center">
                     Talk to an Expert
-                 </button>
+                 </Link>
                  <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-1000"></div>
               </div>
            </aside>

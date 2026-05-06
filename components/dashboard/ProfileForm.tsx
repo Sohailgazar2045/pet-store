@@ -108,7 +108,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Legal Name</     FormLabel>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Full Legal Name
+                    </FormLabel>
                     <FormControl>
                       <Input 
                         autoComplete="name" 

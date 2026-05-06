@@ -2,28 +2,28 @@ import { NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import { Message } from "@/models/Message"
 import { Conversation } from "@/models/Conversation"
-import { verifyAuth } from "@/lib/auth/jwt"
+import { getAccessPayloadOrError } from "@/lib/request-auth"
 
 export async function GET(
   req: Request,
   { params }: { params: { conversationId: string } }
 ) {
   try {
-    const user = await verifyAuth(req)
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const payload = getAccessPayloadOrError(req)
+    if (payload instanceof Response) return payload
 
     await connectDB()
 
     const messages = await Message.find({
-      conversation: params.conversationId
-    })
-    .sort({ createdAt: 1 })
+      conversation: params.conversationId,
+    }).sort({ createdAt: 1 })
 
-    // Mark as read
     await Message.updateMany(
-      { conversation: params.conversationId, sender: { $ne: user.id }, isRead: false },
+      {
+        conversation: params.conversationId,
+        sender: { $ne: payload.sub },
+        isRead: false,
+      },
       { $set: { isRead: true } }
     )
 
@@ -39,14 +39,12 @@ export async function POST(
   { params }: { params: { conversationId: string } }
 ) {
   try {
-    const user = await verifyAuth(req)
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const payload = getAccessPayloadOrError(req)
+    if (payload instanceof Response) return payload
 
     const { content } = await req.json()
 
-    if (!content) {
+    if (!content?.trim()) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
@@ -54,14 +52,13 @@ export async function POST(
 
     const message = await Message.create({
       conversation: params.conversationId,
-      sender: user.id,
-      content
+      sender: payload.sub,
+      content: content.trim(),
     })
 
-    // Update last message in conversation
     await Conversation.findByIdAndUpdate(params.conversationId, {
       lastMessage: message._id,
-      $inc: { "unreadCount.seller": 1 } // Simplified logic for demo
+      $inc: { "unreadCount.seller": 1 },
     })
 
     return NextResponse.json(message)

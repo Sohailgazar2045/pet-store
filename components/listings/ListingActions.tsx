@@ -13,7 +13,7 @@ type ListingActionsProps = {
 }
 
 export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, accessToken } = useAuth()
   const router = useRouter()
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -24,7 +24,7 @@ export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
       return
     }
 
-    if (user?.id === sellerId) {
+    if (user?._id === sellerId) {
       alert("You cannot message yourself.")
       return
     }
@@ -34,10 +34,15 @@ export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
       const res = await fetch("/api/conversations", {
         method: "POST",
         body: JSON.stringify({ listingId, sellerId }),
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
       })
       const data = await res.json()
-      setConversationId(data._id)
+      if (data._id) {
+        setConversationId(data._id)
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -49,7 +54,7 @@ export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
     <div className="space-y-4">
       <Dialog>
         <DialogTrigger asChild>
-          <Button 
+          <Button
             className="w-full h-14 rounded-full text-lg font-black shadow-xl shadow-primary/20 hover:scale-105 transition-all"
             onClick={handleMessageClick}
             disabled={loading}
@@ -59,11 +64,11 @@ export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
         </DialogTrigger>
         {conversationId && (
           <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2.5rem] border-none bg-transparent">
-             <ChatBox conversationId={conversationId} />
+            <ChatBox conversationId={conversationId} />
           </DialogContent>
         )}
       </Dialog>
-      
+
       <Button variant="outline" className="w-full h-14 rounded-full text-lg font-black hover:bg-muted transition-all">
         Call Seller
       </Button>

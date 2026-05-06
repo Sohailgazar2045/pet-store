@@ -8,11 +8,18 @@ import { CheckCircle2, ShieldCheck, TrendingUp, Users, ShoppingBag, BarChart3 } 
 
 export const revalidate = 300
 
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Home | Global Livestock & Pet Marketplace",
+  description: "Explore the most trusted platform for high-quality cattle, domestic pets, and livestock. Buy and sell with confidence on PasturePro.",
+}
+
 /**
  * PasturePro marketing homepage.
  */
 export default async function HomePage() {
-  const { listings: featuredListings } = await queryPublicListings({ limit: 4, sort: "views", status: "active" })
+  const { listings: featuredListings } = await queryPublicListings({ page: 1, limit: 4, sort: "views", status: "active" })
 
   return (
     <div className="flex flex-col">

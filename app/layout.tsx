@@ -11,11 +11,39 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "PasturePro — Cattle & Pets Marketplace",
+    default: "PasturePro | The Premium Livestock & Pets Marketplace",
     template: "%s | PasturePro",
   },
-  description:
-    "Buy and sell cattle and pets. Listings, chat, and trusted local deals.",
+  description: "The world's premier digital marketplace for trading high-quality cattle, exotic pets, and commercial livestock. Secure, verified, and professional.",
+  keywords: ["livestock marketplace", "buy cattle online", "pet trade", "commercial livestock", "PasturePro", "animal trading platform"],
+  authors: [{ name: "PasturePro Global" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://pasturepro.com",
+    siteName: "PasturePro",
+    title: "PasturePro | The Premium Livestock & Pets Marketplace",
+    description: "The world's premier digital marketplace for trading high-quality cattle, exotic pets, and commercial livestock.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "PasturePro Marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PasturePro | The Premium Livestock & Pets Marketplace",
+    description: "The world's premier digital marketplace for trading high-quality cattle, exotic pets, and commercial livestock.",
+    images: ["/og-image.jpg"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
 }
 
 export default function RootLayout({

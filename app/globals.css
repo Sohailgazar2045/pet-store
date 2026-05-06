@@ -39,65 +39,77 @@
     --font-sans: var(--font-sans);
   }
   :root {
-    --background: oklch(0.99 0.01 60);
-    --foreground: oklch(0.2 0.02 20);
+    --background: oklch(0.98 0.01 160);
+    --foreground: oklch(0.15 0.02 160);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.2 0.02 20);
+    --card-foreground: oklch(0.15 0.02 160);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.2 0.02 20);
-    --primary: oklch(0.7 0.18 45); /* Warm Amber/Orange */
-    --primary-foreground: oklch(0.98 0.01 45);
-    --secondary: oklch(0.92 0.04 60);
-    --secondary-foreground: oklch(0.4 0.1 45);
-    --muted: oklch(0.95 0.02 60);
-    --muted-foreground: oklch(0.5 0.02 45);
-    --accent: oklch(0.92 0.04 60);
-    --accent-foreground: oklch(0.4 0.1 45);
-    --destructive: oklch(0.6 0.2 25);
-    --border: oklch(0.9 0.02 60);
-    --input: oklch(0.9 0.02 60);
-    --ring: oklch(0.7 0.18 45);
-    --radius: 0.75rem;
+    --popover-foreground: oklch(0.15 0.02 160);
+    --primary: oklch(0.55 0.15 160); /* Deep Emerald Green */
+    --primary-foreground: oklch(0.98 0.01 160);
+    --secondary: oklch(0.95 0.03 160);
+    --secondary-foreground: oklch(0.35 0.1 160);
+    --muted: oklch(0.92 0.01 160);
+    --muted-foreground: oklch(0.45 0.02 160);
+    --accent: oklch(0.55 0.15 160);
+    --accent-foreground: oklch(0.98 0.01 160);
+    --destructive: oklch(0.6 0.18 25);
+    --border: oklch(0.88 0.02 160);
+    --input: oklch(0.88 0.02 160);
+    --ring: oklch(0.55 0.15 160);
+    --radius: 1.25rem;
   }
   .dark {
-    --background: oklch(0.15 0.02 250);
-    --foreground: oklch(0.95 0.02 250);
-    --card: oklch(0.18 0.02 250);
-    --card-foreground: oklch(0.95 0.02 250);
-    --popover: oklch(0.18 0.02 250);
-    --popover-foreground: oklch(0.95 0.02 250);
-    --primary: oklch(0.75 0.15 45);
-    --primary-foreground: oklch(0.15 0.02 250);
-    --secondary: oklch(0.25 0.05 250);
-    --secondary-foreground: oklch(0.95 0.02 250);
-    --muted: oklch(0.25 0.05 250);
-    --muted-foreground: oklch(0.7 0.05 250);
-    --accent: oklch(0.25 0.05 250);
-    --accent-foreground: oklch(0.95 0.02 250);
+    --background: oklch(0.12 0.02 160);
+    --foreground: oklch(0.95 0.01 160);
+    --card: oklch(0.15 0.02 160);
+    --card-foreground: oklch(0.95 0.01 160);
+    --popover: oklch(0.15 0.02 160);
+    --popover-foreground: oklch(0.95 0.01 160);
+    --primary: oklch(0.65 0.15 160);
+    --primary-foreground: oklch(0.12 0.02 160);
+    --secondary: oklch(0.2 0.03 160);
+    --secondary-foreground: oklch(0.9 0.02 160);
+    --muted: oklch(0.2 0.03 160);
+    --muted-foreground: oklch(0.65 0.02 160);
+    --accent: oklch(0.65 0.15 160);
+    --accent-foreground: oklch(0.12 0.02 160);
     --destructive: oklch(0.5 0.2 25);
-    --border: oklch(0.3 0.05 250);
-    --input: oklch(0.3 0.05 250);
-    --ring: oklch(0.75 0.15 45);
+    --border: oklch(0.25 0.02 160);
+    --input: oklch(0.25 0.02 160);
+    --ring: oklch(0.65 0.15 160);
   }
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground transition-colors duration-300 antialiased selection:bg-primary selection:text-primary;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    @apply bg-white/60 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
   }
   .dark .glass {
-    @apply bg-black/50 backdrop-blur-md border border-white/10;
+    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+  .glass-card {
+    @apply glass rounded-[2.5rem] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-1;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-orange-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-emerald-500 to-teal-400;
+  }
+  .button-premium {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .button-premium::after {
+    @apply content-[''] absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300;
+  }
+  .button-premium:hover::after {
+    @apply translate-y-0;
   }
 }

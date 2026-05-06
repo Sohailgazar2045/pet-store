@@ -7,6 +7,13 @@ import { listingsQuerySchema } from "@/lib/validations/listing.query"
 import { cn } from "@/lib/utils"
 import { Suspense } from "react"
 
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Browse Listings | Marketplace",
+  description: "Explore our global inventory of verified livestock and pets. Filter by category, price, and location to find exactly what you're looking for.",
+}
+
 export const revalidate = 60
 
 type PageProps = {
@@ -96,9 +103,26 @@ export default async function ListingsPage({ searchParams }: PageProps) {
                         Page {result.page} of {result.pages}
                      </p>
                      <div className="flex gap-2">
-                        {/* Simple Pagination - in a real app these would be Links with page param */}
-                        <Button variant="outline" disabled={!result.hasPrev} className="rounded-xl font-black">Previous</Button>
-                        <Button variant="outline" disabled={!result.hasNext} className="rounded-xl font-black">Next</Button>
+                        {result.hasPrev ? (
+                          <Link
+                            href={`/listings?${new URLSearchParams({ ...flattenSearchParams(searchParams), page: String(result.page - 1) }).toString()}`}
+                            className={cn(buttonVariants({ variant: "outline" }), "rounded-xl font-black")}
+                          >
+                            Previous
+                          </Link>
+                        ) : (
+                          <Button variant="outline" disabled className="rounded-xl font-black">Previous</Button>
+                        )}
+                        {result.hasNext ? (
+                          <Link
+                            href={`/listings?${new URLSearchParams({ ...flattenSearchParams(searchParams), page: String(result.page + 1) }).toString()}`}
+                            className={cn(buttonVariants({ variant: "outline" }), "rounded-xl font-black")}
+                          >
+                            Next
+                          </Link>
+                        ) : (
+                          <Button variant="outline" disabled className="rounded-xl font-black">Next</Button>
+                        )}
                      </div>
                   </div>
                 )}

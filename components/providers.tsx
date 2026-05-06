@@ -1,12 +1,13 @@
 "use client"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ThemeProvider } from "next-themes"
 import { useState } from "react"
 import { AuthBootstrap } from "@/components/auth/AuthBootstrap"
 import { Toaster } from "@/components/ui/sonner"
 
 /**
- * App-wide client providers: React Query, session bootstrap, and toasts.
+ * App-wide client providers: theme, React Query, session bootstrap, and toasts.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,9 +23,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthBootstrap>{children}</AuthBootstrap>
-      <Toaster position="top-center" richColors closeButton />
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <AuthBootstrap>{children}</AuthBootstrap>
+        <Toaster position="top-center" richColors closeButton />
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }

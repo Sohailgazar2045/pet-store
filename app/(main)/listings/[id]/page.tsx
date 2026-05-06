@@ -15,6 +15,21 @@ type PageProps = {
   params: { id: string }
 }
 
+import type { Metadata } from "next"
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const listing = await getPublicListingById(params.id)
+  if (!listing) return { title: "Listing Not Found" }
+  
+  return {
+    title: `${listing.title} | ${listing.category}`,
+    description: `Buy ${listing.title} for ${formatListingPrice(listing.price)} in ${listing.location.city}, ${listing.location.state}. Professional trading on PasturePro.`,
+    openGraph: {
+      images: [listing.coverUrl]
+    }
+  }
+}
+
 /**
  * Single listing detail — increments view count once per load.
  */

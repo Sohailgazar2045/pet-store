@@ -1,6 +1,7 @@
 import { connectDB } from "../lib/db"
 import { Listing } from "../models/Listing"
 import { User } from "../models/User"
+import { hashPassword } from "../lib/auth"
 import mongoose from "mongoose"
 
 const DEMO_LISTINGS = [
@@ -9,7 +10,7 @@ const DEMO_LISTINGS = [
     description: "Purebred Sahiwal cow, 2nd lactation, yielding 18-20 liters per day. Fully vaccinated and healthy. Perfect for commercial dairy farming.",
     price: 2450,
     category: "cattle",
-    subcategory: "Cow",
+    subcategory: "cow",
     breed: "Sahiwal",
     status: "active",
     views: 450,
@@ -29,7 +30,7 @@ const DEMO_LISTINGS = [
     description: "Adorable Golden Retriever puppies, 8 weeks old. Champion bloodline, AKC registered, first shots and deworming completed.",
     price: 850,
     category: "pets",
-    subcategory: "Dog",
+    subcategory: "dog",
     breed: "Golden Retriever",
     status: "active",
     views: 1200,
@@ -49,7 +50,7 @@ const DEMO_LISTINGS = [
     description: "Massive Brahman Bull, 3 years old, ideal for breeding. Excellent weight and muscle structure. Disease-free certified.",
     price: 5500,
     category: "cattle",
-    subcategory: "Bull",
+    subcategory: "bull",
     breed: "Brahman",
     status: "active",
     views: 320,
@@ -69,7 +70,7 @@ const DEMO_LISTINGS = [
     description: "Beautiful white Persian kitten, 10 weeks old. Extremely fluffy triple coat, doll face, very playful and litter trained.",
     price: 350,
     category: "pets",
-    subcategory: "Cat",
+    subcategory: "cat",
     breed: "Persian",
     status: "active",
     views: 850,
@@ -97,7 +98,7 @@ async function seed() {
       user = await User.create({
         name: "Demo Seller",
         email: "demo@example.com",
-        password: "password123", // In a real app, this should be hashed
+        password: await hashPassword("password123"),
         role: "user"
       })
       console.log("Created demo seller user")

@@ -115,6 +115,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname.startsWith("/api/conversations")) {
+    if (!token) return jsonUnauthorized()
+    const user = await verifyAccess(token)
+    if (!user) return jsonUnauthorized()
+    return NextResponse.next()
+  }
+
   if (pathname.startsWith("/api/messages")) {
     if (!token) return jsonUnauthorized()
     const user = await verifyAccess(token)
@@ -138,6 +145,8 @@ export const config = {
     "/api/me/:path*",
     "/admin/:path*",
     "/api/admin/:path*",
+    "/api/conversations",
+    "/api/conversations/:path*",
     "/api/messages/:path*",
     "/api/upload",
     "/api/listings",

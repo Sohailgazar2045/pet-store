@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
@@ -30,17 +30,19 @@ export function FavoriteButton({ listingId, initialIsFavorited = false, classNam
 
     setLoading(true)
     try {
-      const res = await fetch("/api/me/favorites", {
-        method: isFavorited ? "DELETE" : "POST",
-        body: JSON.stringify({ listingId }),
-        headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`
-        }
+      const res = await fetch(`/api/listings/${listingId}/favorite`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
       })
-      
+
       if (res.ok) {
-        setIsFavorited(!isFavorited)
+        const json = await res.json()
+        // API returns { success: true, data: { isFavorited: boolean } }
+        const next = json?.data?.isFavorited
+        setIsFavorited(typeof next === "boolean" ? next : !isFavorited)
       }
     } catch (err) {
       console.error(err)

@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, Trash2, Eye, Plus, ExternalLink, CheckCircle2, MoreVertical } from "lucide-react"
+import { Loader2, Trash2, Eye, Plus, ExternalLink, CheckCircle2, MoreVertical, ShoppingBag } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
