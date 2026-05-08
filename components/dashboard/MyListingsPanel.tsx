@@ -188,7 +188,7 @@ export function MyListingsPanel() {
            </div>
            <h3 className="text-2xl font-black mb-4">Inventory is empty</h3>
            <p className="text-muted-foreground font-medium max-w-sm mx-auto mb-10 leading-relaxed">
-             You don't have any listings matching this criteria. Create your first listing to start selling.
+             You don&apos;t have any listings matching this criteria. Create your first listing to start selling.
            </p>
            <Link 
              href="/listings/new" 

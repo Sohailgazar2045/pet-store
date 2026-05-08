@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ListingGrid } from "@/components/listings/ListingGrid"
 import { ListingFilters } from "@/components/listings/ListingFilters"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { queryPublicListings } from "@/lib/listings/public-listings"
 import { listingsQuerySchema } from "@/lib/validations/listing.query"
 import { cn } from "@/lib/utils"
@@ -41,7 +41,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
         <div className="glass p-12 rounded-[3.5rem] border-rose-200 bg-rose-50/50 text-center max-w-lg">
           <h2 className="text-3xl font-black text-rose-900 mb-4">Invalid Catalog View</h2>
           <p className="text-rose-600/80 font-medium mb-10 leading-relaxed">
-            We couldn't generate the requested catalog view. Please reset the marketplace parameters.
+            We couldn&apos;t generate the requested catalog view. Please reset the marketplace parameters.
           </p>
           <Link href="/listings" className={cn(buttonVariants({ variant: "outline" }), "rounded-full border-rose-200 text-rose-600 hover:bg-rose-100 font-black px-12 h-14")}>Reset Marketplace</Link>
         </div>

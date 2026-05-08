@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Search, Home, ArrowLeft } from "lucide-react"
+import { Search, Home } from "lucide-react"
 
 export default function NotFound() {
   return (
@@ -10,7 +10,7 @@ export default function NotFound() {
           <div className="text-[12rem] font-black leading-none text-primary/10 select-none mb-4">404</div>
           <h1 className="text-5xl font-black mb-6 tracking-tight">Lost in the <br /><span className="text-gradient">Pasture?</span></h1>
           <p className="text-muted-foreground font-medium text-xl mb-12 leading-relaxed max-w-md mx-auto">
-            The page you are looking for has migrated or doesn't exist. Let's get you back to the main marketplace.
+            The page you are looking for has migrated or doesn&apos;t exist. Let&apos;s get you back to the main marketplace.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/listings">

@@ -25,7 +25,7 @@ export default function LoginPage() {
                </div>
                
                <p className="text-white/40 text-xl font-medium leading-relaxed max-w-md">
-                  Re-enter the world's most sophisticated livestock network. Your elite assets await management.
+                  Re-enter the world&apos;s most sophisticated livestock network. Your elite assets await management.
                </p>
                
                <div className="grid grid-cols-1 gap-8 pt-8">

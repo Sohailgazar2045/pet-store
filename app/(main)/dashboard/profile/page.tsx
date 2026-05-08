@@ -3,7 +3,7 @@
 import { ProfileForm } from "@/components/dashboard/ProfileForm"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/hooks/useAuth"
-import { UserCircle, BadgeCheck } from "lucide-react"
+import { BadgeCheck } from "lucide-react"
 
 export default function DashboardProfilePage() {
   const { user, ready } = useAuth()

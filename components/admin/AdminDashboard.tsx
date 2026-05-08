@@ -12,13 +12,11 @@ import { formatListingPrice } from "@/lib/utils"
 import Image from "next/image"
 import { 
   ShieldCheck, 
-  Ban, 
   Users, 
   ShoppingBag, 
   Trash2, 
   CheckCircle2, 
   XCircle, 
-  MoreVertical,
   Activity,
   ArrowUpRight,
   Filter,
@@ -75,7 +73,7 @@ type AdminStatsPayload = {
 export function AdminDashboard() {
   const { accessToken } = useAuth()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState("pending")
+  const [, setActiveTab] = useState("pending")
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ["admin-listings"],
@@ -141,7 +139,7 @@ export function AdminDashboard() {
 
   const pending = listings?.filter(l => l.status === "pending") || []
   const active = listings?.filter(l => l.status === "active") || []
-  const archived = listings?.filter(l => ["rejected", "sold", "expired"].includes(l.status)) || []
+
 
   const statCards = [
     { label: "Inventory Volume", value: formatListingPrice(listings?.reduce((acc, l) => acc + l.price, 0) || 0), icon: ShoppingBag, color: "text-primary", bg: "bg-primary/10", trend: `${stats?.listingsTotal ?? 0} total listings` },

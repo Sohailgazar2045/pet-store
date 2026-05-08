@@ -3,11 +3,9 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/hooks/useAuth"
-import { apiGet } from "@/lib/api-client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChatBox } from "@/components/chat/ChatBox"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 import { MessageSquare, Search, Filter, MoreHorizontal, CheckCircle2 } from "lucide-react"
 
 type Conversation = {

@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Trash2, Upload, Plus, Camera, Info, ShieldCheck, MapPin } from "lucide-react"
+import { Loader2, Trash2, Plus, Camera, Info, ShieldCheck, MapPin } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"

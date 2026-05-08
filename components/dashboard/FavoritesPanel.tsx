@@ -95,7 +95,7 @@ export function FavoritesPanel() {
            </div>
            <h3 className="text-2xl font-black mb-4">Your collection is empty</h3>
            <p className="text-muted-foreground font-medium max-w-sm mx-auto mb-10 leading-relaxed">
-             Start exploring the marketplace and save the assets you're interested in by clicking the heart icon.
+             Start exploring the marketplace and save the assets you&apos;re interested in by clicking the heart icon.
            </p>
            <Link 
              href="/listings" 

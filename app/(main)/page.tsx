@@ -4,7 +4,7 @@ import { Hero } from "@/components/sections/Hero"
 import { ListingCard } from "@/components/listings/ListingCard"
 import { queryPublicListings } from "@/lib/listings/public-listings"
 import { cn } from "@/lib/utils"
-import { ShieldCheck, TrendingUp, Users, ShoppingBag, Zap, Globe, Award, ArrowRight, Sparkles, Flame, Clock } from "lucide-react"
+import { ShieldCheck, ShoppingBag, Globe, ArrowRight, Sparkles, Flame, Clock } from "lucide-react"
 
 export const revalidate = 300
 

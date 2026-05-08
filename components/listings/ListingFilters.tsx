@@ -12,8 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Search, SlidersHorizontal, X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Search, SlidersHorizontal } from "lucide-react"
 
 /**
  * Professional sidebar filters for the listings page.

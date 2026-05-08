@@ -25,7 +25,7 @@ export default function Error({
           </div>
           <h1 className="text-4xl font-black mb-4">Something Went Wrong</h1>
           <p className="text-muted-foreground font-medium text-lg mb-10 leading-relaxed">
-            An unexpected error occurred while processing your request. Our team has been notified and we're working to fix it.
+            An unexpected error occurred while processing your request. Our team has been notified and we&apos;re working to fix it.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Button 

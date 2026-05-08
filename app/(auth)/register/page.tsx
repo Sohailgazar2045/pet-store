@@ -1,8 +1,6 @@
 import Link from "next/link"
 import { RegisterForm } from "@/components/auth/RegisterForm"
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { ShieldCheck, ArrowLeft, Heart, ShoppingBag } from "lucide-react"
+import { ArrowLeft, Heart, ShoppingBag } from "lucide-react"
 
 /**
  * Registration page — POST /api/auth/register with password rules.
@@ -56,7 +54,7 @@ export default function RegisterPage() {
             </div>
             <h2 className="text-4xl font-black tracking-tight">Create <span className="text-gradient">Account</span></h2>
             <p className="text-lg text-muted-foreground font-medium">
-              Start your journey in the world's premier animal marketplace.
+              Start your journey in the world&apos;s premier animal marketplace.
             </p>
           </div>
           

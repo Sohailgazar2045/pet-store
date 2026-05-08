@@ -1,22 +1,17 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { getPublicListingById } from "@/lib/listings/get-public-by-id"
-import { cn, formatListingPrice } from "@/lib/utils"
+import { formatListingPrice } from "@/lib/utils"
 import { 
   MapPin, 
-  ShieldCheck, 
   Share2, 
   ChevronRight,
   Phone,
-  MessageCircle,
   Flag,
   Clock,
-  CheckCircle,
-  Star,
-  Info
+  CheckCircle
 } from "lucide-react"
 import { ListingActions } from "@/components/listings/ListingActions"
 import { FavoriteButton } from "@/components/listings/FavoriteButton"
@@ -50,7 +45,9 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const { listings: similarListings } = await queryPublicListings({
     category: listing.category,
     limit: 4,
-    status: "active"
+    status: "active",
+    sort: "newest",
+    page: 1
   })
 
   return (

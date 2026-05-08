@@ -1,5 +1,5 @@
 import { MessagesInbox } from "@/components/dashboard/MessagesInbox"
-import { MessageSquare, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 
 export default function DashboardMessagesPage() {
   return (

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import { UserNav } from "./UserNav"
@@ -13,7 +13,7 @@ import { Search, Heart, PlusCircle, LayoutDashboard } from "lucide-react"
  */
 export function Navbar() {
   const pathname = usePathname()
-  const { ready, isAuthenticated, user } = useAuth()
+  const { ready, isAuthenticated } = useAuth()
 
   const navItems = [
     { name: "Marketplace", href: "/listings", icon: null },

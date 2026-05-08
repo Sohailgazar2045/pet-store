@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import type { PublicListing } from "@/lib/listings/public-listings"
-import { cn, formatListingPrice } from "@/lib/utils"
-import { MapPin, Heart, Clock } from "lucide-react"
+import { formatListingPrice } from "@/lib/utils"
+import { MapPin, Clock } from "lucide-react"
 import { FavoriteButton } from "@/components/listings/FavoriteButton"
 
 type ListingCardProps = {

@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
 import { 
-  User, 
   Settings, 
   LogOut, 
   LayoutDashboard, 

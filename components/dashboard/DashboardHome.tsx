@@ -70,7 +70,7 @@ export function DashboardHome() {
         <div>
           <h1 className="text-4xl font-black tracking-tight">Welcome back, <span className="text-gradient">{user?.name}</span></h1>
           <p className="mt-2 text-lg text-muted-foreground font-medium">
-            Here's what's happening with your marketplace activity.
+            Here&apos;s what&apos;s happening with your marketplace activity.
           </p>
         </div>
         <Link

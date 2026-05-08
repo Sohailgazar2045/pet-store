@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+
 import { Search, MapPin, ChevronDown, LayoutGrid } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -23,7 +23,7 @@ export function Hero() {
            <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-4">
              Find the Perfect <span className="text-primary">Asset</span> Today
            </h1>
-           <p className="text-slate-500 font-medium text-lg">Pakistan's most trusted marketplace for elite livestock and pets.</p>
+           <p className="text-slate-500 font-medium text-lg">Pakistan&apos;s most trusted marketplace for elite livestock and pets.</p>
         </div>
 
         {/* OLX-Style Search Bar (Premium Version) */}

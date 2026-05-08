@@ -35,9 +35,10 @@ export async function removeListingImage(filename: string): Promise<void> {
   const filePath = path.join(UPLOADS_DIR, filename)
   try {
     await fs.unlink(filePath)
-  } catch (e: any) {
-    if (e.code !== "ENOENT") {
+  } catch (e: unknown) {
+    if (e instanceof Error && 'code' in e && (e as NodeJS.ErrnoException).code !== "ENOENT") {
       throw e
+    }
   }
 }
 
