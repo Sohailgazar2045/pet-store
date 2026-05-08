@@ -1,10 +1,5 @@
 import { getAccessPayloadOrError } from "@/lib/request-auth"
-import {
-  deleteListingImage,
-  ensureCloudinaryConfigured,
-  LISTING_IMAGE_FOLDER,
-  uploadListingImage,
-} from "@/lib/cloudinary"
+import { saveListingImage, removeListingImage } from "@/lib/storage"
 import { successJson, errorJson } from "@/lib/api-response"
 import { detectImageMimeFromBytes } from "@/lib/image-bytes"
 import { deleteUploadSchema } from "@/lib/validations/upload.schema"
@@ -14,9 +9,6 @@ export const runtime = "nodejs"
 const MAX_FILES = 8
 const MAX_BYTES = 5 * 1024 * 1024
 
-/** Only assets under this folder may be deleted via this API. */
-const LISTING_PUBLIC_ID_PREFIX = `${LISTING_IMAGE_FOLDER}/`
-
 /**
  * POST /api/upload — multipart `files` (up to 8), JPEG/PNG/WebP, 5MB each.
  * Requires `Authorization: Bearer <access_token>`.
@@ -24,16 +16,6 @@ const LISTING_PUBLIC_ID_PREFIX = `${LISTING_IMAGE_FOLDER}/`
 export async function POST(req: Request) {
   const denied = getAccessPayloadOrError(req)
   if (denied instanceof Response) return denied
-
-  try {
-    ensureCloudinaryConfigured()
-  } catch {
-    return errorJson(
-      "Image upload is not configured (Cloudinary env vars)",
-      503,
-      "CLOUDINARY_CONFIG"
-    )
-  }
 
   const ct = req.headers.get("content-type") ?? ""
   if (!ct.includes("multipart/form-data")) {
@@ -92,22 +74,15 @@ export async function POST(req: Request) {
         "INVALID_IMAGE_TYPE"
       )
     }
-    if (file.type && file.type.startsWith("image/")) {
-      const declared = file.type === "image/jpg" ? "image/jpeg" : file.type
-      if (declared !== detected) {
-        return errorJson(
-          "File content does not match its declared type",
-          400,
-          "MIME_MISMATCH"
-        )
-      }
-    }
+    
+    // Determine extension from MIME type
+    const ext = detected.split("/")[1] === "jpeg" ? "jpg" : detected.split("/")[1]
 
     try {
-      images.push(await uploadListingImage(buf))
+      images.push(await saveListingImage(buf, ext))
     } catch (e) {
-      console.error("[upload] Cloudinary error", e)
-      return errorJson("Failed to upload image", 500, "UPLOAD_FAILED")
+      console.error("[upload] Storage error", e)
+      return errorJson("Failed to save image locally", 500, "UPLOAD_FAILED")
     }
   }
 
@@ -115,7 +90,7 @@ export async function POST(req: Request) {
 }
 
 /**
- * DELETE /api/upload — body `{ "public_id": "pasturepro/listings/..." }`.
+ * DELETE /api/upload — body `{ "public_id": "filename.webp" }`.
  */
 export async function DELETE(req: Request) {
   const denied = getAccessPayloadOrError(req)
@@ -135,26 +110,9 @@ export async function DELETE(req: Request) {
   }
 
   const { public_id: publicId } = parsed.data
-  if (!publicId.startsWith(LISTING_PUBLIC_ID_PREFIX)) {
-    return errorJson(
-      "You can only delete listing images from this app folder",
-      403,
-      "FORBIDDEN_PUBLIC_ID"
-    )
-  }
 
   try {
-    ensureCloudinaryConfigured()
-  } catch {
-    return errorJson(
-      "Image service not configured (Cloudinary env vars)",
-      503,
-      "CLOUDINARY_CONFIG"
-    )
-  }
-
-  try {
-    await deleteListingImage(publicId)
+    await removeListingImage(publicId)
   } catch (e) {
     console.error("[upload] delete error", e)
     return errorJson("Failed to delete image", 500, "DELETE_FAILED")
@@ -162,3 +120,4 @@ export async function DELETE(req: Request) {
 
   return successJson({ deleted: true })
 }
+

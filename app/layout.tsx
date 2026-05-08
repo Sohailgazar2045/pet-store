@@ -1,12 +1,13 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Outfit } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { Providers } from "@/components/providers"
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 })
 
 export const metadata: Metadata = {
@@ -52,10 +53,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
-      <body className={cn(inter.className, "min-h-screen antialiased")}>
+    <html lang="en" className={cn("font-sans scroll-smooth", outfit.variable)} suppressHydrationWarning>
+      <body className={cn(outfit.className, "min-h-screen antialiased bg-background text-foreground transition-colors duration-300")}>
         <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
+

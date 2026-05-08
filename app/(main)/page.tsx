@@ -4,210 +4,178 @@ import { Hero } from "@/components/sections/Hero"
 import { ListingCard } from "@/components/listings/ListingCard"
 import { queryPublicListings } from "@/lib/listings/public-listings"
 import { cn } from "@/lib/utils"
-import { CheckCircle2, ShieldCheck, TrendingUp, Users, ShoppingBag, BarChart3 } from "lucide-react"
+import { ShieldCheck, TrendingUp, Users, ShoppingBag, Zap, Globe, Award, ArrowRight, Sparkles, Flame, Clock } from "lucide-react"
 
 export const revalidate = 300
 
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Home | Global Livestock & Pet Marketplace",
-  description: "Explore the most trusted platform for high-quality cattle, domestic pets, and livestock. Buy and sell with confidence on PasturePro.",
+  title: "PasturePro | Elite Livestock & Pet Marketplace",
+  description: "The premier digital destination for high-value cattle and premium pets. Secure, verified, and professional trading for the modern market.",
 }
 
-/**
- * PasturePro marketing homepage.
- */
 export default async function HomePage() {
-  const { listings: featuredListings } = await queryPublicListings({ page: 1, limit: 4, sort: "views", status: "active" })
+  const { listings: trendingListings } = await queryPublicListings({ 
+    page: 1, 
+    limit: 4, 
+    sort: "views", 
+    status: "active" 
+  })
+
+  const { listings: newArrivals } = await queryPublicListings({ 
+    page: 1, 
+    limit: 4, 
+    sort: "newest", 
+    status: "active" 
+  })
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-[#fcfcfc] dark:bg-[#050505]">
       <Hero />
       
-      {/* Market Overview Section */}
-      <section className="bg-background section-padding relative overflow-hidden">
-        <div className="container relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 mb-16">
-            <div className="max-w-xl text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                 <TrendingUp className="size-3" />
-                 Market Intelligence
-              </div>
-              <h2 className="mb-4">Live Market <span className="text-gradient">Analytics</span></h2>
-              <p className="text-lg font-medium text-muted-foreground">Real-time data and trends for the livestock and pet marketplace. Stay informed and make better decisions with PasturePro Insights.</p>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <div className="glass px-6 py-3 rounded-full text-xs font-black flex items-center gap-3 border-white/40 shadow-xl">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                LIVE NETWORK UPDATES
-              </div>
-              <Link href="/reports" className="h-12 px-8 rounded-full border-2 border-primary text-primary text-sm font-black hover:bg-primary hover:text-white transition-all flex items-center">
-                Download Report
-              </Link>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { label: "Cattle Index", value: "+2.4%", status: "up", trend: "Strong Demand", icon: <TrendingUp className="size-5" /> },
-              { label: "Pet Adoption", value: "15.8%", status: "up", trend: "High Growth", icon: <Users className="size-5" /> },
-              { label: "Market Volume", value: "$4.2M", status: "up", trend: "Rising", icon: <ShoppingBag className="size-5" /> },
-              { label: "Success Rate", value: "94.2%", status: "stable", trend: "Consistent", icon: <BarChart3 className="size-5" /> }
-            ].map((stat) => (
-              <div key={stat.label} className="glass p-8 rounded-[2.5rem] border-white/40 hover:scale-105 transition-all shadow-xl group">
-                <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                  {stat.icon}
-                </div>
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">{stat.label}</p>
-                <div className="flex items-end gap-3 mb-2">
-                  <span className="text-3xl font-black tracking-tight">{stat.value}</span>
-                  <span className={cn(
-                    "text-[10px] font-black px-2 py-1 rounded-lg",
-                    stat.status === "up" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"
-                  )}>
-                    {stat.status === "up" ? "↑" : "→"}
-                  </span>
-                </div>
-                <p className="text-xs font-bold text-muted-foreground/60">{stat.trend}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px] -z-10"></div>
-      </section>
-
-      {/* Featured Listings Section */}
-      <section className="bg-muted/30 section-padding relative">
-        <div className="container">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div className="max-w-xl">
-              <h2 className="mb-4">Premium <span className="text-gradient">Listings</span></h2>
-              <p className="text-lg font-medium text-muted-foreground">Hand-picked premium listings from our top-rated verified sellers.</p>
-            </div>
-            <Link 
-              href="/listings" 
-              className={cn(buttonVariants({ variant: "outline" }), "rounded-full px-8 h-12 font-black border-primary text-primary hover:bg-primary hover:text-white transition-all")}
-            >
-              Browse All Marketplace
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-             {featuredListings.length > 0 ? (
-               featuredListings.map(listing => (
-                 <ListingCard key={listing._id} listing={listing} />
-               ))
-             ) : (
-               <div className="col-span-full py-20 text-center glass rounded-[3rem] border-dashed border-white/40 shadow-xl">
-                  <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🔍</div>
-                  <p className="text-muted-foreground font-black text-lg">
-                    No listings available at the moment.
-                  </p>
-                  <Link href="/listings/new" className="text-primary font-black mt-4 inline-block hover:underline">Be the first to list →</Link>
-               </div>
-             )}
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-primary/5 blur-[100px] -z-10"></div>
-      </section>
-
-      {/* Featured Categories Section */}
-      <section className="bg-background section-padding overflow-hidden">
-        <div className="container">
-          <div className="mb-16 text-center lg:text-left">
-            <h2 className="mb-4">Market <span className="text-gradient">Categories</span></h2>
-            <p className="max-w-2xl text-lg font-medium text-muted-foreground">Specialized trading hubs for every need. From commercial livestock to domestic companions.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { name: "Cattle & Bulls", icon: "🐄", count: "2,500+", color: "bg-emerald-500" },
-              { name: "Dogs & Puppies", icon: "🐕", count: "1,200+", color: "bg-amber-500" },
-              { name: "Cats & Kittens", icon: "🐈", count: "800+", color: "bg-indigo-500" },
-              { name: "Birds & Poultry", icon: "🦜", count: "450+", color: "bg-rose-500" }
-            ].map((cat) => (
-              <div key={cat.name} className="group relative overflow-hidden rounded-[2.5rem] bg-card p-10 shadow-sm border-white/40 hover:border-primary/20 transition-all hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] hover:-translate-y-2 border">
-                <div className={cn("mb-8 h-20 w-20 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-all shadow-xl text-white", cat.color)}>
-                  {cat.icon}
-                </div>
-                <h3 className="text-2xl font-black mb-2">{cat.name}</h3>
-                <p className="text-xs font-black text-muted-foreground mb-8 uppercase tracking-[0.2em]">{cat.count} listings</p>
-                <div className="inline-flex items-center text-sm font-black text-primary group-hover:translate-x-2 transition-transform">
-                  Enter Hub <span className="ml-2">→</span>
-                </div>
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Safety & Verification */}
-      <section className="section-padding bg-muted/30 relative overflow-hidden">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="relative">
-              <div className="relative aspect-square max-w-md mx-auto">
-                 <div className="absolute inset-0 bg-primary/10 rounded-[3rem] rotate-6 animate-pulse"></div>
-                 <div className="absolute inset-0 glass rounded-[4rem] shadow-2xl flex flex-col items-center justify-center p-12 text-center border-white/50 border-4">
-                    <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-white mb-8 shadow-2xl shadow-primary/40">
-                       <CheckCircle2 className="size-12" />
-                    </div>
-                    <h3 className="text-4xl font-black mb-4">Certified Safe</h3>
-                    <p className="text-lg font-medium text-muted-foreground leading-relaxed">Our multi-layer verification system ensures every animal is healthy and every seller is legitimate.</p>
-                 </div>
-              </div>
-            </div>
-            <div>
-              <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary mb-6">
-                Premium Protocol
-              </div>
-              <h2 className="mb-8 leading-[1.1] text-5xl font-black">The Gold Standard of <br /><span className="text-gradient">Secure Trading</span></h2>
-              <div className="space-y-10">
-                {[
-                  { title: "Health Verification", desc: "Every premium listing comes with verified veterinary health certificates and history." },
-                  { title: "Identity Protection", desc: "Sellers are identity-verified to prevent fraud and ensure high-quality marketplace integrity." },
-                  { title: "On-Site Inspection", desc: "Book a professional inspector to verify the animal's condition before finalizing any trade." }
-                ].map((f) => (
-                  <div key={f.title} className="flex gap-6 group">
-                    <div className="h-14 w-14 rounded-2xl bg-white shadow-xl shadow-primary/5 flex-shrink-0 flex items-center justify-center text-primary border border-primary/10 group-hover:bg-primary group-hover:text-white transition-all">
-                       <ShieldCheck className="size-7" />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-black mb-2 tracking-tight">{f.title}</h4>
-                      <p className="text-muted-foreground leading-relaxed font-medium">{f.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="section-padding">
+      {/* Category Quick Circles */}
+      <section className="py-12 bg-white dark:bg-slate-900 border-b dark:border-slate-800">
          <div className="container">
-            <div className="glass p-20 rounded-[4rem] bg-primary text-white border-none shadow-[0_64px_128px_-16px_rgba(var(--primary),0.3)] relative overflow-hidden text-center">
-               <div className="relative z-10 max-w-2xl mx-auto">
-                  <h2 className="text-white text-5xl font-black mb-6 leading-tight">Ready to Find Your <br />Next Asset?</h2>
-                  <p className="text-primary-foreground/80 text-xl font-medium mb-10">Join 50,000+ active users in the most trusted marketplace for livestock and pets.</p>
-                  <div className="flex flex-wrap justify-center gap-4">
-                     <Link href="/register" className="h-16 px-12 rounded-full bg-white text-primary font-black flex items-center hover:scale-105 transition-all shadow-2xl">
-                        Create Free Account
-                     </Link>
-                     <Link href="/listings" className="h-16 px-12 rounded-full border-2 border-white text-white font-black flex items-center hover:bg-white hover:text-primary transition-all">
-                        Browse Marketplace
-                     </Link>
-                  </div>
-               </div>
-               <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-white/10 blur-[100px]"></div>
-               <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-orange-400/10 blur-[100px]"></div>
+            <div className="flex items-center justify-between mb-10">
+               <h3 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Shop by Category</h3>
+               <Link href="/listings" className="text-xs font-black text-primary hover:underline">View All Departments</Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8">
+               {[
+                  { name: "Cattle", icon: "🐄", color: "bg-emerald-500/10 text-emerald-600" },
+                  { name: "Dogs", icon: "🐕", color: "bg-orange-500/10 text-orange-600" },
+                  { name: "Horses", icon: "🐎", color: "bg-blue-500/10 text-blue-600" },
+                  { name: "Birds", icon: "🦜", color: "bg-rose-500/10 text-rose-600" },
+                  { name: "Cats", icon: "🐈", color: "bg-purple-500/10 text-purple-600" },
+                  { name: "Goats", icon: "🐐", color: "bg-amber-500/10 text-amber-600" }
+               ].map((cat) => (
+                  <Link key={cat.name} href={`/listings?category=${cat.name.toLowerCase()}`} className="group flex flex-col items-center gap-4">
+                     <div className={cn("h-24 w-24 rounded-full flex items-center justify-center text-4xl shadow-sm transition-all group-hover:scale-110 group-hover:shadow-xl", cat.color)}>
+                        {cat.icon}
+                     </div>
+                     <span className="text-sm font-black text-slate-700 dark:text-slate-300 group-hover:text-primary">{cat.name}</span>
+                  </Link>
+               ))}
             </div>
          </div>
+      </section>
+
+      {/* Trending Deals Section */}
+      <section className="py-24 container">
+         <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center gap-4">
+               <div className="h-12 w-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                  <Flame className="size-6" />
+               </div>
+               <div>
+                  <h2 className="text-3xl font-black tracking-tight">Trending <span className="text-orange-500">Deals</span></h2>
+                  <p className="text-sm font-medium text-slate-500 uppercase tracking-widest mt-1">High Demand Assets</p>
+               </div>
+            </div>
+            <Link href="/listings?sort=views" className="hidden sm:flex items-center gap-2 text-sm font-black text-slate-400 hover:text-primary transition-colors">
+               See All Deals <ArrowRight className="size-4" />
+            </Link>
+         </div>
+
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {trendingListings.map(listing => (
+               <ListingCard key={listing._id} listing={listing} />
+            ))}
+         </div>
+      </section>
+
+      {/* Promotional Banner */}
+      <section className="container mb-24">
+         <div className="relative rounded-[3.5rem] bg-slate-900 overflow-hidden p-12 lg:p-20 flex flex-col lg:flex-row items-center gap-16 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)]">
+            <div className="flex-1 text-center lg:text-left z-10">
+               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-8">
+                  <Sparkles className="size-3" /> Exclusive Verified Program
+               </div>
+               <h2 className="text-white text-5xl lg:text-7xl font-black mb-8 leading-[1.1]">The Gold Standard <br /> of <span className="text-primary">Verification.</span></h2>
+               <p className="text-slate-400 text-xl font-medium mb-12 max-w-xl">Every premium listing on PasturePro is vet-audited and identity-verified. Trade with absolute peace of mind.</p>
+               <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+                  <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "h-16 px-10 rounded-full font-black text-lg")}>Join the Network</Link>
+                  <Link href="/listings" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-16 px-10 rounded-full font-black text-lg text-white border-white/20 hover:bg-white/10")}>Learn More</Link>
+               </div>
+            </div>
+            <div className="relative flex-1 w-full max-w-md aspect-square">
+               <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full"></div>
+               <div className="relative h-full w-full glass rounded-[4rem] border-white/10 flex flex-col items-center justify-center p-12 text-center">
+                  <ShieldCheck className="size-24 text-primary mb-8" />
+                  <h3 className="text-white text-3xl font-black mb-4">Institutional Trust</h3>
+                  <p className="text-slate-400 font-medium">99.8% Successful Trade Rate through our protected network.</p>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* New Arrivals Section */}
+      <section className="py-24 bg-slate-100 dark:bg-slate-950">
+         <div className="container">
+            <div className="flex items-center justify-between mb-12">
+               <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                     <Clock className="size-6" />
+                  </div>
+                  <div>
+                     <h2 className="text-3xl font-black tracking-tight">New <span className="text-primary">Arrivals</span></h2>
+                     <p className="text-sm font-medium text-slate-500 uppercase tracking-widest mt-1">Freshly Added Today</p>
+                  </div>
+               </div>
+               <Link href="/listings?sort=newest" className="hidden sm:flex items-center gap-2 text-sm font-black text-slate-400 hover:text-primary transition-colors">
+                  Browse New Items <ArrowRight className="size-4" />
+               </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+               {newArrivals.map(listing => (
+                  <ListingCard key={listing._id} listing={listing} />
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* Benefits Trust Bar */}
+      <section className="py-24 container">
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+               { icon: <ShoppingBag className="size-8" />, title: "Market-Direct", desc: "No middlemen. Direct access to verified sellers and breeders worldwide." },
+               { icon: <ShieldCheck className="size-8" />, title: "Secure Checkout", desc: "Multi-layer encryption for high-value transactions and data safety." },
+               { icon: <Globe className="size-8" />, title: "Global Logistics", desc: "Integrated shipping support for local and international livestock transit." }
+            ].map((f) => (
+               <div key={f.title} className="flex flex-col gap-6 p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+                  <div className="h-16 w-16 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary">
+                     {f.icon}
+                  </div>
+                  <h4 className="text-xl font-black tracking-tight">{f.title}</h4>
+                  <p className="text-slate-500 font-medium leading-relaxed">{f.desc}</p>
+               </div>
+            ))}
+         </div>
+      </section>
+
+      {/* Global CTA */}
+      <section className="py-32 bg-slate-900 text-white overflow-hidden relative">
+         <div className="container relative z-10 text-center">
+            <h2 className="text-5xl lg:text-8xl font-black mb-10 leading-none">Ready to start <br /> <span className="text-primary">trading?</span></h2>
+            <p className="text-slate-400 text-xl lg:text-2xl font-medium mb-16 max-w-2xl mx-auto leading-relaxed">Join the most advanced digital livestock network on the planet.</p>
+            <div className="flex flex-wrap justify-center gap-6">
+               <Link href="/register" className="h-20 px-16 rounded-full bg-primary text-white font-black text-xl flex items-center hover:scale-105 transition-all shadow-2xl shadow-primary/40">
+                  Create Account
+               </Link>
+               <Link href="/listings" className="h-20 px-16 rounded-full border-2 border-white/20 text-white font-black text-xl flex items-center hover:bg-white hover:text-slate-900 transition-all">
+                  Browse Market
+               </Link>
+            </div>
+         </div>
+         {/* Background Effects */}
+         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 blur-[150px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+         <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-emerald-500/5 blur-[150px] rounded-full -translate-x-1/2 translate-y-1/2"></div>
       </section>
     </div>
   )
 }
+
+
 

@@ -1,6 +1,6 @@
 import { Types } from "mongoose"
 import { connectDB } from "@/lib/db"
-import { deleteCloudinaryImagesIfOwned } from "@/lib/cloudinary"
+import { removeLocalImages } from "@/lib/storage"
 import { getPublicListingById } from "@/lib/listings/get-public-by-id"
 import { serializePublicListing } from "@/lib/listings/public-listings"
 import { canManageListing } from "@/lib/listings/ownership"
@@ -113,7 +113,7 @@ export async function PUT(
       patch.images.map((i: { public_id: string }) => i.public_id)
     )
     const removed = oldIds.filter((pid: string) => !nextIds.has(pid))
-    await deleteCloudinaryImagesIfOwned(removed)
+    await removeLocalImages(removed)
     doc.images = patch.images
   }
 
@@ -207,7 +207,7 @@ export async function DELETE(
   const publicIds = (doc.images ?? []).map(
     (i: { public_id: string }) => i.public_id
   )
-  await deleteCloudinaryImagesIfOwned(publicIds)
+  await removeLocalImages(publicIds)
 
   await Promise.all([
     Report.deleteMany({ listing: oid }),

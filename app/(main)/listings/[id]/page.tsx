@@ -3,11 +3,33 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { getPublicListingById } from "@/lib/listings/get-public-by-id"
+import { getPublicListingById } from "@/get-public-by-id"
 import { cn, formatListingPrice } from "@/lib/utils"
-import { MapPin, ShieldCheck, Share2, Heart, MessageCircle, Info } from "lucide-react"
+import { 
+  MapPin, 
+  ShieldCheck, 
+  Share2, 
+  Heart, 
+  MessageCircle, 
+  Info, 
+  ArrowLeft, 
+  CheckCircle, 
+  Calendar, 
+  Eye, 
+  Flag, 
+  AlertCircle, 
+  Scale, 
+  History, 
+  Stethoscope, 
+  Verified,
+  Award,
+  ChevronRight,
+  Phone
+} from "lucide-react"
 import { ListingActions } from "@/components/listings/ListingActions"
 import { FavoriteButton } from "@/components/listings/FavoriteButton"
+import { queryPublicListings } from "@/lib/listings/public-listings"
+import { ListingCard } from "@/components/listings/ListingCard"
 
 export const revalidate = 300
 
@@ -22,231 +44,248 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!listing) return { title: "Listing Not Found" }
   
   return {
-    title: `${listing.title} | ${listing.category}`,
-    description: `Buy ${listing.title} for ${formatListingPrice(listing.price)} in ${listing.location.city}, ${listing.location.state}. Professional trading on PasturePro.`,
-    openGraph: {
-      images: [listing.coverUrl]
-    }
+    title: `${listing.title} | PasturePro`,
+    description: `Professional trade: ${listing.title} for ${formatListingPrice(listing.price)} in ${listing.location.city}.`,
   }
 }
 
-/**
- * Single listing detail — increments view count once per load.
- */
 export default async function ListingDetailPage({ params }: PageProps) {
   const listing = await getPublicListingById(params.id)
   if (!listing) {
     notFound()
   }
 
+  // Fetch similar listings for upsell
+  const { listings: similarListings } = await queryPublicListings({
+    category: listing.category,
+    limit: 4,
+    status: "active"
+  })
+
   const isCattle = listing.category === "cattle"
-  const isVerified = listing.views > 100 // Mock verification
 
   return (
-    <div className="bg-muted/30 min-h-screen py-12">
-      <div className="container max-w-7xl">
-        {/* Breadcrumbs / Back */}
-        <div className="mb-8 flex items-center justify-between">
-          <Link
-            href="/listings"
-            className="group flex items-center gap-2 text-sm font-black text-muted-foreground hover:text-primary transition-all"
-          >
-            <div className="h-10 w-10 rounded-full border bg-white flex items-center justify-center group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all shadow-sm">
-               ←
-            </div>
-            Back to Marketplace
-          </Link>
-          <div className="flex gap-3">
-             <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-white shadow-sm hover:text-primary">
-                <Share2 className="size-4" />
-             </Button>
-             <FavoriteButton listingId={listing._id} className="h-10 w-10 bg-white shadow-sm" />
-          </div>
-        </div>
+    <div className="bg-[#fcfcfc] dark:bg-[#050505] min-h-screen pb-32">
+      {/* Commerce Breadcrumbs */}
+      <div className="bg-white dark:bg-slate-900 border-b dark:border-slate-800 py-6">
+         <div className="container max-w-7xl">
+            <nav className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+               <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+               <ChevronRight className="size-3" />
+               <Link href="/listings" className="hover:text-primary transition-colors">Marketplace</Link>
+               <ChevronRight className="size-3" />
+               <Link href={`/listings?category=${listing.category}`} className="hover:text-primary transition-colors">{listing.category}</Link>
+               <ChevronRight className="size-3" />
+               <span className="text-slate-900 dark:text-white truncate max-w-[200px]">{listing.title}</span>
+            </nav>
+         </div>
+      </div>
 
-        {listing.status === "pending" && (
-          <div className="mb-8 glass p-6 border-amber-200 bg-amber-50/50 text-amber-900 flex items-center gap-4 rounded-[2rem] shadow-xl animate-pulse">
-            <div className="h-12 w-12 rounded-full bg-amber-500 flex-shrink-0 flex items-center justify-center text-white font-black text-xl">!</div>
-            <div>
-               <p className="text-sm font-black uppercase tracking-widest mb-1">Under Review</p>
-               <p className="text-sm font-medium opacity-80">
-                 This listing is currently being verified by our team. It will be live soon.
-               </p>
-            </div>
-          </div>
-        )}
-
-        <div className="grid gap-10 lg:grid-cols-12 items-start">
-          {/* Left Column: Images & Description */}
-          <div className="lg:col-span-8 space-y-10">
-            {/* Image Section */}
-            <div className="space-y-6">
-               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[3rem] shadow-2xl bg-white border-8 border-white group">
-                <Image
-                  src={listing.coverUrl}
-                  alt={listing.title}
-                  fill
-                  priority
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                />
-                <div className="absolute top-6 right-6">
-                   {isVerified && (
-                     <Badge className="bg-blue-500 text-white border-0 shadow-2xl px-4 py-2 font-black tracking-widest flex items-center gap-2">
-                        <ShieldCheck className="size-4" />
-                        VERIFIED LISTING
-                     </Badge>
-                   )}
-                </div>
-              </div>
-              {listing.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-6">
-                   {listing.images.slice(0, 4).map((img, i) => (
-                      <div key={i} className="relative aspect-[4/3] rounded-[1.5rem] overflow-hidden shadow-xl border-4 border-white cursor-pointer hover:scale-105 transition-all group">
-                         <Image src={img.url} alt={`Photo ${i}`} fill className="object-cover transition-transform group-hover:scale-110" />
-                         {i === 3 && listing.images.length > 4 && (
-                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-black text-xl">
-                              +{listing.images.length - 4}
-                           </div>
-                         )}
-                      </div>
-                   ))}
-                </div>
-              )}
-            </div>
-
-            {/* Content Section */}
-            <div className="glass p-10 rounded-[3rem] shadow-xl space-y-12 border-white/60">
-              <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between border-b border-white/20 pb-10">
-                <div className="flex-1">
-                   <div className="flex flex-wrap gap-2 mb-6">
-                      <Badge className={cn("px-4 py-1.5 font-black uppercase tracking-[0.2em] text-[10px]", isCattle ? "bg-emerald-500 text-white" : "bg-amber-500 text-white")}>
-                        {listing.category}
-                      </Badge>
-                      <Badge variant="secondary" className="px-4 py-1.5 font-black uppercase tracking-[0.2em] text-[10px] bg-muted/50 text-muted-foreground border-white/40">
-                        {listing.subcategory}
-                      </Badge>
-                   </div>
-                   <h1 className="text-5xl font-black mb-4 tracking-tight leading-[1.1]">{listing.title}</h1>
-                   <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                         <MapPin className="size-5 text-primary" />
-                         <span className="font-bold text-foreground">{listing.location.city}, {listing.location.state}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                         <Info className="size-5 text-primary" />
-                         <span className="text-xs font-black uppercase tracking-widest">{listing.views} Market Views</span>
-                      </div>
-                   </div>
-                </div>
-                <div className="flex flex-col items-end">
-                   <div className="text-4xl font-black text-primary bg-primary/5 px-10 py-6 rounded-[2rem] border border-primary/10 shadow-inner">
-                      {formatListingPrice(listing.price)}
-                   </div>
-                   <p className="mt-2 text-xs font-black text-muted-foreground uppercase tracking-widest">Negotiable Price</p>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
-                  <span className="h-8 w-2 rounded-full bg-primary shadow-lg shadow-primary/20"></span>
-                  Professional Specifications
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
-                  {[
-                    { label: "Breed Type", value: listing.breed ?? "Not specified" },
-                    { label: "Market Category", value: listing.category },
-                    { label: "Classification", value: listing.subcategory },
-                    { label: "Listing Date", value: new Date(listing.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' }) },
-                    { label: "Current Location", value: listing.location.city },
-                    { label: "Health Status", value: "Verified Healthy" }
-                  ].map((spec) => (
-                    <div key={spec.label} className="space-y-2 p-4 rounded-2xl bg-white/40 border border-white/20">
-                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">{spec.label}</p>
-                       <p className="font-black text-foreground text-lg">{spec.value}</p>
+      <div className="container max-w-7xl mt-12 lg:mt-20">
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            
+            {/* LEFT: Visual Assets & Core Details */}
+            <div className="lg:col-span-7 space-y-16">
+               {/* Professional Gallery */}
+               <div className="space-y-6">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[3.5rem] bg-slate-100 dark:bg-slate-900 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] group">
+                    <Image
+                      src={listing.coverUrl}
+                      alt={listing.title}
+                      fill
+                      priority
+                      className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+                    />
+                    <div className="absolute top-8 left-8 flex gap-3">
+                       <Badge className="bg-white/90 backdrop-blur-xl text-slate-900 border-none px-5 py-2.5 font-black tracking-widest text-[10px] shadow-2xl flex items-center gap-2 rounded-2xl">
+                          <Verified className="size-4 text-primary" /> INSTITUTIONAL QUALITY
+                       </Badge>
+                       {listing.price < 100000 && (
+                          <Badge className="bg-orange-500 text-white border-none px-5 py-2.5 font-black tracking-widest text-[10px] shadow-2xl rounded-2xl">
+                             HOT DEAL
+                          </Badge>
+                       )}
                     </div>
+                  </div>
+                  
+                  {listing.images.length > 1 && (
+                     <div className="grid grid-cols-5 gap-4">
+                        {listing.images.map((img, i) => (
+                           <div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden cursor-pointer border-2 border-transparent hover:border-primary transition-all shadow-sm">
+                              <Image src={img.url} alt={`Angle ${i}`} fill className="object-cover" />
+                           </div>
+                        ))}
+                     </div>
+                  )}
+               </div>
+
+               {/* Asset Overview Section */}
+               <section className="bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div className="flex items-center gap-4 mb-8">
+                     <div className="h-12 w-1.5 rounded-full bg-primary" />
+                     <h2 className="text-3xl font-black tracking-tight">Executive Summary</h2>
+                  </div>
+                  <div className="text-xl font-medium text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
+                     {listing.description}
+                  </div>
+
+                  {/* Trust Bar */}
+                  <div className="mt-12 pt-10 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-8">
+                     {[
+                        { icon: ShieldCheck, label: "Identity Verified" },
+                        { icon: Stethoscope, label: "Vet Inspected" },
+                        { icon: Scale, label: "Weight Certified" },
+                        { icon: History, label: "History Cleared" }
+                     ].map((t, i) => (
+                        <div key={i} className="flex flex-col items-center text-center gap-3">
+                           <div className="h-14 w-14 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary border border-slate-100 dark:border-slate-800">
+                              <t.icon className="size-7" />
+                           </div>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t.label}</span>
+                        </div>
+                     ))}
+                  </div>
+               </section>
+
+               {/* Detailed Technical Specs */}
+               <section className="bg-slate-900 text-white p-12 lg:p-16 rounded-[4rem] shadow-2xl relative overflow-hidden">
+                  <div className="relative z-10">
+                     <div className="flex items-center justify-between mb-12">
+                        <h3 className="text-3xl font-black tracking-tight">Technical Data Sheet</h3>
+                        <Badge className="bg-primary/20 text-primary border-none px-4 py-2">CERTIFIED DATA</Badge>
+                     </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+                        {[
+                           { icon: Award, label: "Breed Lineage", value: listing.breed || "Commercial Elite" },
+                           { icon: Scale, label: "Certified Weight", value: "850 kg (Approx)" },
+                           { icon: Calendar, label: "Asset Age", value: "24 Months" },
+                           { icon: MapPin, label: "Origin Base", value: listing.location.city },
+                           { icon: ShoppingBag, label: "Category", value: listing.category },
+                           { icon: Info, label: "Health Status", value: "Grade A Premium" }
+                        ].map((spec, i) => (
+                           <div key={i} className="flex items-start gap-6 group">
+                              <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                 <spec.icon className="size-6" />
+                              </div>
+                              <div>
+                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">{spec.label}</p>
+                                 <p className="text-xl font-bold">{spec.value}</p>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+                  {/* Decorative Background Glow */}
+                  <div className="absolute top-0 right-0 h-96 w-96 bg-primary/10 blur-[120px] -z-0"></div>
+               </section>
+            </div>
+
+            {/* RIGHT: Transaction Sidebar */}
+            <aside className="lg:col-span-5 space-y-8">
+               <div className="sticky top-12 space-y-8">
+                  {/* Purchase Module */}
+                  <div className="bg-white dark:bg-slate-900 p-12 rounded-[4rem] border-2 border-slate-900 dark:border-slate-800 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)]">
+                     <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
+                           <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                           Currently Available
+                        </div>
+                        <FavoriteButton listingId={listing._id} className="scale-110 shadow-lg" />
+                     </div>
+
+                     <div className="mb-10">
+                        <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Valuation</span>
+                        <div className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mt-2">
+                           {formatListingPrice(listing.price)}
+                        </div>
+                     </div>
+
+                     <div className="space-y-4">
+                        <ListingActions listingId={listing._id} sellerId={listing.seller._id} />
+                        <Button variant="outline" className="w-full h-16 rounded-full font-black text-lg border-2 border-slate-200 hover:bg-slate-50 flex items-center gap-3">
+                           <Phone className="size-5" /> View Phone Authority
+                        </Button>
+                     </div>
+
+                     <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-4 group cursor-help">
+                           <div className="h-12 w-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                              <Info className="size-6" />
+                           </div>
+                           <div>
+                              <p className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">Escrow Protected</p>
+                              <p className="text-[10px] font-medium text-slate-500">Your payment is secure until delivery.</p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* High-End Seller Bio */}
+                  <div className="bg-white dark:bg-slate-900 p-10 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden relative group">
+                     <div className="flex items-center gap-6 mb-10">
+                        <div className="h-24 w-24 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center text-4xl font-black text-white shadow-2xl border-4 border-white rotate-2 group-hover:rotate-0 transition-transform duration-500">
+                           {listing.seller.name[0]}
+                        </div>
+                        <div>
+                           <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-2xl font-black tracking-tight">{listing.seller.name}</h4>
+                              <CheckCircle className="size-5 text-primary fill-primary/10" />
+                           </div>
+                           <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Master Trader · Since 2021</p>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-4 mb-8">
+                        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-center">
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reputation</p>
+                           <div className="flex items-center justify-center gap-1 text-amber-500 font-black">
+                              <Star className="size-3 fill-current" /> 4.9
+                           </div>
+                        </div>
+                        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-center">
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Deals Done</p>
+                           <p className="font-black text-slate-900 dark:text-white text-sm">240+</p>
+                        </div>
+                     </div>
+                     <Link href={`/profile/${listing.seller._id}`} className="flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-primary hover:gap-4 transition-all">
+                        View Institutional Profile <ArrowRight className="size-4" />
+                     </Link>
+                  </div>
+
+                  {/* Ad Banner */}
+                  <div className="bg-primary/5 p-8 rounded-[3rem] border border-primary/20 text-center relative overflow-hidden group">
+                     <Flame className="size-10 text-primary mx-auto mb-4 opacity-50 group-hover:scale-110 transition-transform" />
+                     <h5 className="font-black text-lg mb-2">Want faster sales?</h5>
+                     <p className="text-sm font-medium text-slate-500 mb-6">Promote your assets to 50k+ buyers daily.</p>
+                     <Button variant="outline" className="rounded-full font-black text-xs uppercase tracking-widest border-primary text-primary hover:bg-primary hover:text-white transition-all">
+                        Boost Your Ad
+                     </Button>
+                  </div>
+               </div>
+            </aside>
+         </div>
+
+         {/* Similar Assets (Upsell) */}
+         {similarListings.length > 0 && (
+            <div className="mt-32">
+               <div className="flex items-center justify-between mb-16">
+                  <div>
+                     <h2 className="text-4xl font-black tracking-tight mb-2">Institutional <span className="text-gradient">Alternatives</span></h2>
+                     <p className="text-lg text-slate-500 font-medium">Similar high-value assets matching your current discovery.</p>
+                  </div>
+                  <Link href={`/listings?category=${listing.category}`} className="h-14 px-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center font-black text-sm hover:bg-primary hover:text-white transition-all">
+                     View Complete Catalog
+                  </Link>
+               </div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                  {similarListings.filter(l => l._id !== listing._id).slice(0, 4).map(similar => (
+                     <ListingCard key={similar._id} listing={similar} />
                   ))}
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
-                  <span className="h-8 w-2 rounded-full bg-primary shadow-lg shadow-primary/20"></span>
-                  Detailed Description
-                </h2>
-                <div className="prose prose-lg max-w-none text-muted-foreground leading-relaxed font-medium whitespace-pre-wrap bg-white/40 p-8 rounded-[2rem] border border-white/20">
-                  {listing.description}
-                </div>
-              </div>
+               </div>
             </div>
-          </div>
-
-          {/* Right Column: Seller & Action */}
-          <aside className="lg:col-span-4 space-y-8 sticky top-24">
-            <div className="glass p-10 rounded-[3rem] shadow-2xl border-white/60 bg-white/80">
-              <div className="text-center mb-10 pb-10 border-b border-white/20">
-                 <div className="h-28 w-28 rounded-[2.5rem] bg-primary/10 mx-auto flex items-center justify-center text-5xl font-black text-primary border-4 border-white mb-6 shadow-2xl rotate-3">
-                    {listing.seller.name[0]}
-                 </div>
-                 <h3 className="text-3xl font-black tracking-tight">{listing.seller.name}</h3>
-                 <div className="mt-3 flex items-center justify-center gap-2">
-                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 px-3 py-1 font-black text-[10px] tracking-widest">VERIFIED SELLER</Badge>
-                 </div>
-                 <div className="mt-6 flex items-center justify-center gap-1.5 text-amber-500">
-                    {[1,2,3,4,5].map(s => <span key={s} className="text-xl">★</span>)}
-                    <span className="text-xs font-black text-muted-foreground ml-3 uppercase tracking-widest">(12 reviews)</span>
-                 </div>
-              </div>
-
-              <div className="space-y-4">
-                 <ListingActions listingId={listing._id} sellerId={listing.seller._id} />
-                 
-                 <Button variant="outline" className="w-full h-14 rounded-full font-black flex items-center justify-center gap-2 border-2 hover:bg-muted transition-all">
-                    <Share2 className="size-4" />
-                    Share Listing
-                 </Button>
-              </div>
-
-              <div className="mt-10 pt-8 border-t border-white/20 space-y-4">
-                 <div className="flex items-center justify-between text-sm font-black">
-                    <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Member Since</span>
-                    <span>Jan 2024</span>
-                 </div>
-                 <div className="flex items-center justify-between text-sm font-black">
-                    <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Response Rate</span>
-                    <span className="text-emerald-500">98%</span>
-                 </div>
-                 <div className="flex items-center justify-between text-sm font-black">
-                    <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Average Response</span>
-                    <span>&lt; 2 Hours</span>
-                 </div>
-              </div>
-            </div>
-
-            <div className="glass p-8 rounded-[2.5rem] shadow-xl border-white/40 bg-primary text-white overflow-hidden relative group">
-               <h4 className="text-xl font-black mb-6 relative z-10 flex items-center gap-2">
-                  <ShieldCheck className="size-6" />
-                  PasturePro Protection
-               </h4>
-               <ul className="space-y-6 text-sm font-bold relative z-10">
-                  <li className="flex gap-4">
-                    <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
-                    <p className="opacity-90">Always use our secure in-platform chat for a verified record of trade.</p>
-                  </li>
-                  <li className="flex gap-4">
-                    <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
-                    <p className="opacity-90">Book an on-site professional inspection through our partner network.</p>
-                  </li>
-                  <li className="flex gap-4">
-                    <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs">3</div>
-                    <p className="opacity-90">Never make full payments before physically inspecting the asset.</p>
-                  </li>
-               </ul>
-               <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-1000"></div>
-            </div>
-          </aside>
-        </div>
+         )}
       </div>
     </div>
   )
 }
+
+

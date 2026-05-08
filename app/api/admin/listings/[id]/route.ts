@@ -1,6 +1,6 @@
 import { Types } from "mongoose"
 import { connectDB } from "@/lib/db"
-import { deleteCloudinaryImagesIfOwned } from "@/lib/cloudinary"
+import { removeLocalImages } from "@/lib/storage"
 import { serializePublicListing } from "@/lib/listings/public-listings"
 import { successJson, errorJson } from "@/lib/api-response"
 import { requireAdminPayloadOrError } from "@/lib/request-auth"
@@ -97,7 +97,7 @@ export async function DELETE(
   const publicIds = (doc.images ?? []).map(
     (i: { public_id: string }) => i.public_id
   )
-  await deleteCloudinaryImagesIfOwned(publicIds)
+  await removeLocalImages(publicIds)
 
   await Promise.all([
     Report.deleteMany({ listing: oid }),

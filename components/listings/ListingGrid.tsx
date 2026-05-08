@@ -6,16 +6,21 @@ type ListingGridProps = {
 }
 
 /**
- * Responsive grid for listing cards.
+ * World-class responsive grid for elite listing cards.
  */
 export function ListingGrid({ listings }: ListingGridProps) {
   return (
-    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {listings.map((listing) => (
-        <li key={listing._id}>
+    <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12 lg:gap-x-10 lg:gap-y-16">
+      {listings.map((listing, index) => (
+        <li 
+          key={listing._id}
+          className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both"
+          style={{ animationDelay: `${index * 100}ms` }}
+        >
           <ListingCard listing={listing} />
         </li>
       ))}
     </ul>
   )
 }
+

@@ -1,21 +1,13 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Trash2, Upload } from "lucide-react"
+import { Loader2, Trash2, Upload, Plus, Camera, Info, ShieldCheck, MapPin } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useForm, type Resolver } from "react-hook-form"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -57,9 +49,6 @@ function parseTags(input?: string): string[] | undefined {
   return tags.length ? tags : undefined
 }
 
-/**
- * Create listing: details + uploads via `/api/upload`.
- */
 export function ListingForm({ className }: { className?: string }) {
   const router = useRouter()
   const { accessToken } = useAuth()
@@ -195,365 +184,283 @@ export function ListingForm({ className }: { className?: string }) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("space-y-8", className)}
+        className={cn("space-y-12", className)}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle>Photos</CardTitle>
-            <CardDescription>
-              Up to 8 images (JPEG, PNG, WebP). Max 5MB each. Requires Cloudinary
-              configured on the server.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-3">
+        {/* Media Selection */}
+        <section className="space-y-6">
+           <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                 <Camera className="size-5" />
+              </div>
+              <h2 className="text-2xl font-black">Visual Asset Gallery</h2>
+           </div>
+           
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.map((img) => (
                 <div
                   key={img.public_id}
-                  className="relative size-24 overflow-hidden rounded-lg border bg-muted"
+                  className="relative aspect-square overflow-hidden rounded-3xl border-2 border-white shadow-lg group"
                 >
                   <Image
                     src={img.url}
                     alt=""
                     fill
-                    className="object-cover"
-                    sizes="96px"
+                    className="object-cover transition-transform group-hover:scale-110"
+                    sizes="(max-width: 768px) 50vw, 25vw"
                   />
                   <button
                     type="button"
-                    className="absolute right-1 top-1 rounded bg-background/90 p-1 shadow"
+                    className="absolute right-2 top-2 rounded-xl bg-white/90 p-2 shadow-xl hover:bg-rose-500 hover:text-white transition-all text-rose-500"
                     onClick={() =>
                       setImages((prev) =>
                         prev.filter((i) => i.public_id !== img.public_id)
                       )
                     }
-                    aria-label="Remove image"
                   >
                     <Trash2 className="size-4" />
                   </button>
                 </div>
               ))}
-            </div>
-            <div>
-              <Input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                disabled={uploading || images.length >= 8}
-                className="cursor-pointer"
-                onChange={(e) => void handleFiles(e.target.files)}
-              />
-              <p className="mt-2 text-xs text-muted-foreground">
-                {images.length}/8 images ·{" "}
-                {uploading ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Loader2 className="size-3 animate-spin" /> Uploading…
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1">
-                    <Upload className="size-3" /> Choose files
-                  </span>
-                )}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Basics</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Sahiwal cow — excellent milk" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(v) => {
-                      field.onChange(v)
-                      form.setValue(
-                        "subcategory",
-                        v === "cattle" ? "cow" : "dog"
-                      )
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="cattle">Cattle</SelectItem>
-                      <SelectItem value="pets">Pets</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="subcategory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subOptions.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price (PKR)</FormLabel>
-                  <FormControl>
-                    <Input type="number" min={0} step={1} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="breed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Breed (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Holstein" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select
-                    value={field.value ?? "unspecified"}
-                    onValueChange={(v) =>
-                      field.onChange(
-                        v === "unspecified" ? undefined : (v as ListingFormFields["gender"])
-                      )
-                    }
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Optional" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="unspecified">Not specified</SelectItem>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Age (optional)</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="ageValue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      step={1}
-                      placeholder="e.g. 18"
-                      value={field.value ?? ""}
-                      onChange={(e) => {
-                        const v = e.target.value
-                        field.onChange(v === "" ? undefined : Number(v))
-                      }}
+              {images.length < 8 && (
+                 <label className={cn(
+                    "relative aspect-square rounded-3xl border-4 border-dashed border-muted flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all",
+                    uploading && "opacity-50 pointer-events-none"
+                 )}>
+                    {uploading ? (
+                       <Loader2 className="size-8 animate-spin text-primary" />
+                    ) : (
+                       <>
+                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3">
+                             <Plus className="size-6" />
+                          </div>
+                          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Add Photo</span>
+                       </>
+                    )}
+                    <input 
+                       type="file"
+                       className="hidden"
+                       multiple
+                       accept="image/*"
+                       onChange={(e) => void handleFiles(e.target.files)}
+                       disabled={uploading}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                 </label>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="ageUnit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Unit</FormLabel>
-                  <Select
-                    value={field.value ?? "unspecified"}
-                    onValueChange={(v) =>
-                      field.onChange(
-                        v === "unspecified"
-                          ? undefined
-                          : (v as NonNullable<ListingFormFields["ageUnit"]>)
-                      )
-                    }
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pick unit" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="unspecified">—</SelectItem>
-                      <SelectItem value="days">Days</SelectItem>
-                      <SelectItem value="months">Months</SelectItem>
-                      <SelectItem value="years">Years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+           </div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+              Maximum 8 high-resolution images · Verified Secure Hosting
+           </p>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Location</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="location.city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location.state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State / Province</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location.country"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+        {/* Essential Information */}
+        <section className="space-y-6">
+           <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                 <Info className="size-5" />
+              </div>
+              <h2 className="text-2xl font-black">Market Specifications</h2>
+           </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Description & tags</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea rows={6} placeholder="Health, temperament, delivery…" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tagsInput"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="dairy, vaccinated, halal" {...field} />
-                  </FormControl>
-                  <FormDescription>Comma-separated.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-          <CardFooter className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Submitting…
-                </>
-              ) : (
-                "Submit listing"
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
+           <div className="grid gap-8 md:grid-cols-2 bg-muted/20 p-8 rounded-[2.5rem] border-2 border-white shadow-inner">
+             <FormField
+               control={form.control}
+               name="title"
+               render={({ field }) => (
+                 <FormItem className="md:col-span-2">
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Asset Title</FormLabel>
+                   <FormControl>
+                     <Input className="h-14 rounded-2xl border-none shadow-sm focus:ring-4 focus:ring-primary/5 px-6 font-bold" placeholder="e.g. Sahiwal Breeding Bull — Grade A" {...field} />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="category"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Core Category</FormLabel>
+                   <Select
+                     value={field.value}
+                     onValueChange={(v) => {
+                       field.onChange(v)
+                       form.setValue("subcategory", v === "cattle" ? "cow" : "dog")
+                     }}
+                   >
+                     <FormControl>
+                       <SelectTrigger className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold">
+                         <SelectValue />
+                       </SelectTrigger>
+                     </FormControl>
+                     <SelectContent className="rounded-2xl border-none shadow-2xl">
+                       <SelectItem value="cattle">Cattle</SelectItem>
+                       <SelectItem value="pets">Pets</SelectItem>
+                     </SelectContent>
+                   </Select>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="subcategory"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Asset Classification</FormLabel>
+                   <Select value={field.value} onValueChange={field.onChange}>
+                     <FormControl>
+                       <SelectTrigger className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold">
+                         <SelectValue />
+                       </SelectTrigger>
+                     </FormControl>
+                     <SelectContent className="rounded-2xl border-none shadow-2xl">
+                       {subOptions.map((s) => (
+                         <SelectItem key={s} value={s}>{s}</SelectItem>
+                       ))}
+                     </SelectContent>
+                   </Select>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="price"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Asking Price (PKR)</FormLabel>
+                   <FormControl>
+                     <div className="relative">
+                        <Input type="number" min={0} className="h-14 rounded-2xl border-none shadow-sm px-6 pl-14 font-black text-lg" {...field} />
+                        <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary font-black">Rs.</span>
+                     </div>
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="breed"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Lineage / Breed</FormLabel>
+                   <FormControl>
+                     <Input className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold" placeholder="Optional" {...field} />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+           </div>
+        </section>
+
+        {/* Location & Status */}
+        <section className="space-y-6">
+           <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                 <MapPin className="size-5" />
+              </div>
+              <h2 className="text-2xl font-black">Regional Presence</h2>
+           </div>
+
+           <div className="grid gap-8 md:grid-cols-2 bg-muted/20 p-8 rounded-[2.5rem] border-2 border-white shadow-inner">
+             <FormField
+               control={form.control}
+               name="location.city"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Metropolis / City</FormLabel>
+                   <FormControl>
+                     <Input className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold" {...field} />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="location.state"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Territory / Province</FormLabel>
+                   <FormControl>
+                     <Input className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold" {...field} />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+           </div>
+        </section>
+
+        {/* Narrative & Discovery */}
+        <section className="space-y-6">
+           <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                 <ShieldCheck className="size-5" />
+              </div>
+              <h2 className="text-2xl font-black">Trade Narrative</h2>
+           </div>
+
+           <div className="bg-muted/20 p-8 rounded-[2.5rem] border-2 border-white shadow-inner space-y-8">
+             <FormField
+               control={form.control}
+               name="description"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Technical Description</FormLabel>
+                   <FormControl>
+                     <Textarea rows={6} className="rounded-3xl border-none shadow-sm p-8 font-medium leading-relaxed" placeholder="Elaborate on health metrics, temperament, and trade terms…" {...field} />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+             <FormField
+               control={form.control}
+               name="tagsInput"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Market Tags</FormLabel>
+                   <FormControl>
+                     <Input className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold" placeholder="e.g. Vaccinated, Premium, Dairy" {...field} />
+                   </FormControl>
+                   <FormDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Separate with commas for optimal discovery</FormDescription>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+           </div>
+        </section>
+
+        <div className="flex items-center justify-end gap-6 pt-10 border-t border-muted">
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-14 px-8 rounded-full font-black uppercase tracking-widest text-[11px] hover:bg-muted"
+            onClick={() => router.back()}
+          >
+            Abort
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={form.formState.isSubmitting}
+            className="h-14 px-12 rounded-full font-black uppercase tracking-widest text-[11px] shadow-[0_20px_50px_rgba(var(--primary),0.3)] hover:scale-105 transition-all"
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Processing Protocol…
+              </>
+            ) : (
+              "Submit Listing for Review"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   )
 }
+
