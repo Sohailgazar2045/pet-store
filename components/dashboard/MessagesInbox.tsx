@@ -48,7 +48,7 @@ export function MessagesInbox() {
 
   const conversations: Conversation[] = data || []
   const filteredConversations = conversations.filter(c => {
-     const other = c.participants.find(p => p._id !== user?.id)
+     const other = c.participants.find(p => p._id !== user?._id)
      return other?.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
             c.listing.title.toLowerCase().includes(searchQuery.toLowerCase())
   })
@@ -90,7 +90,7 @@ export function MessagesInbox() {
             </div>
           ) : (
             filteredConversations.map((conv) => {
-              const other = conv.participants.find(p => p._id !== user?.id)
+              const other = conv.participants.find(p => p._id !== user?._id)
               const isActive = selectedId === conv._id
               return (
                 <div 

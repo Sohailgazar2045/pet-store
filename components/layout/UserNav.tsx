@@ -33,14 +33,19 @@ export function UserNav() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all">
-          <span className="font-black text-primary">
-            {user?.name?.[0]?.toUpperCase() ?? "U"}
-          </span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 rounded-[2rem] p-4 glass shadow-2xl" align="end" forceMount>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            className="relative h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all"
+          >
+            <span className="font-black text-primary">
+              {user?.name?.[0]?.toUpperCase() ?? "U"}
+            </span>
+          </Button>
+        }
+      />
+      <DropdownMenuContent className="w-64 rounded-[2rem] p-4 glass shadow-2xl" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1 py-2">

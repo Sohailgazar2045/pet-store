@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Trash2, Plus, Camera, Info, ShieldCheck, MapPin } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useMemo, useState, type ComponentProps } from "react"
 import { useForm, type Resolver } from "react-hook-form"
+import { useAuthStore } from "@/store/authStore"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
@@ -36,8 +38,27 @@ import {
   type ListingFormFields,
 } from "@/lib/validations/listing.schema"
 import type { ListingImage } from "@/types"
-import { useAuth } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
+
+/**
+ * Base UI Select + Radix `Slot` (FormControl) on the trigger breaks selection updates.
+ * Apply field a11y props directly on the trigger instead.
+ */
+function FormSelectTrigger(props: ComponentProps<typeof SelectTrigger>) {
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  return (
+    <SelectTrigger
+      id={formItemId}
+      aria-describedby={
+        !error
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
+      aria-invalid={!!error}
+      {...props}
+    />
+  )
+}
 
 function parseTags(input?: string): string[] | undefined {
   if (!input?.trim()) return undefined
@@ -51,7 +72,7 @@ function parseTags(input?: string): string[] | undefined {
 
 export function ListingForm({ className }: { className?: string }) {
   const router = useRouter()
-  const { accessToken } = useAuth()
+  const ready = useAuthStore((s) => s.ready)
   const [images, setImages] = useState<ListingImage[]>([])
   const [uploading, setUploading] = useState(false)
 
@@ -87,7 +108,8 @@ export function ListingForm({ className }: { className?: string }) {
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return
-    if (!accessToken) {
+    const token = useAuthStore.getState().accessToken
+    if (!token) {
       toast.error("Sign in to upload photos", {
         action: {
           label: "Log in",
@@ -108,7 +130,7 @@ export function ListingForm({ className }: { className?: string }) {
       for (const f of slice) fd.append("files", f)
       const res = await fetch("/api/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: fd,
         credentials: "include",
       })
@@ -130,7 +152,12 @@ export function ListingForm({ className }: { className?: string }) {
   }
 
   async function onSubmit(values: ListingFormFields) {
-    if (!accessToken) {
+    if (!ready) {
+      toast.error("Restoring your session — try again in a moment.")
+      return
+    }
+    const token = useAuthStore.getState().accessToken
+    if (!token) {
       toast.error("Sign in to post your listing", {
         action: {
           label: "Log in",
@@ -167,7 +194,7 @@ export function ListingForm({ className }: { className?: string }) {
       const res = await apiPost<{ listing: { _id: string } }>(
         "/api/listings",
         check.data,
-        { token: accessToken }
+        { token }
       )
       if (!res.success) {
         throw new Error(res.error)
@@ -242,7 +269,7 @@ export function ListingForm({ className }: { className?: string }) {
                        multiple
                        accept="image/*"
                        onChange={(e) => void handleFiles(e.target.files)}
-                       disabled={uploading}
+                       disabled={uploading || !ready}
                     />
                  </label>
               )}
@@ -285,14 +312,16 @@ export function ListingForm({ className }: { className?: string }) {
                      value={field.value}
                      onValueChange={(v) => {
                        field.onChange(v)
-                       form.setValue("subcategory", v === "cattle" ? "cow" : "dog")
+                       form.setValue(
+                         "subcategory",
+                         v === "cattle" ? "cow" : "dog",
+                         { shouldValidate: true, shouldDirty: true }
+                       )
                      }}
                    >
-                     <FormControl>
-                       <SelectTrigger className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold">
-                         <SelectValue />
-                       </SelectTrigger>
-                     </FormControl>
+                     <FormSelectTrigger className="h-14 w-full rounded-2xl border-none shadow-sm px-6 font-bold">
+                       <SelectValue placeholder="Select category" />
+                     </FormSelectTrigger>
                      <SelectContent className="rounded-2xl border-none shadow-2xl">
                        <SelectItem value="cattle">Cattle</SelectItem>
                        <SelectItem value="pets">Pets</SelectItem>
@@ -308,12 +337,14 @@ export function ListingForm({ className }: { className?: string }) {
                render={({ field }) => (
                  <FormItem>
                    <FormLabel className="text-[11px] font-black uppercase tracking-widest text-primary">Asset Classification</FormLabel>
-                   <Select value={field.value} onValueChange={field.onChange}>
-                     <FormControl>
-                       <SelectTrigger className="h-14 rounded-2xl border-none shadow-sm px-6 font-bold">
-                         <SelectValue />
-                       </SelectTrigger>
-                     </FormControl>
+                   <Select
+                     key={category}
+                     value={field.value}
+                     onValueChange={field.onChange}
+                   >
+                     <FormSelectTrigger className="h-14 w-full rounded-2xl border-none shadow-sm px-6 font-bold">
+                       <SelectValue placeholder="Select type" />
+                     </FormSelectTrigger>
                      <SelectContent className="rounded-2xl border-none shadow-2xl">
                        {subOptions.map((s) => (
                          <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -446,7 +477,7 @@ export function ListingForm({ className }: { className?: string }) {
           </Button>
           <Button 
             type="submit" 
-            disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || !ready}
             className="h-14 px-12 rounded-full font-black uppercase tracking-widest text-[11px] shadow-[0_20px_50px_rgba(var(--primary),0.3)] hover:scale-105 transition-all"
           >
             {form.formState.isSubmitting ? (

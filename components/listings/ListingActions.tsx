@@ -53,15 +53,17 @@ export function ListingActions({ listingId, sellerId }: ListingActionsProps) {
   return (
     <div className="space-y-4">
       <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            className="w-full h-14 rounded-full text-lg font-black shadow-xl shadow-primary/20 hover:scale-105 transition-all"
-            onClick={handleMessageClick}
-            disabled={loading}
-          >
-            {loading ? "Connecting..." : "Message Seller"}
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger
+          render={
+            <Button
+              className="w-full h-14 rounded-full text-lg font-black shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+              onClick={() => void handleMessageClick()}
+              disabled={loading}
+            >
+              {loading ? "Connecting..." : "Message Seller"}
+            </Button>
+          }
+        />
         {conversationId && (
           <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2.5rem] border-none bg-transparent">
             <ChatBox conversationId={conversationId} />

@@ -87,7 +87,9 @@ export function ListingFilters() {
           <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category</Label>
           <Select
             value={searchParams.get("category") || "all"}
-            onValueChange={(v) => handleFilter("category", v === "all" ? "" : v)}
+            onValueChange={(v) =>
+              handleFilter("category", v && v !== "all" ? v : "")
+            }
           >
             <SelectTrigger className="rounded-xl border-white/20 bg-background/50 font-black">
               <SelectValue placeholder="All Categories" />
@@ -127,7 +129,7 @@ export function ListingFilters() {
           <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sort By</Label>
           <Select
             value={searchParams.get("sort") || "newest"}
-            onValueChange={(v) => handleFilter("sort", v)}
+            onValueChange={(v) => handleFilter("sort", v ?? "newest")}
           >
             <SelectTrigger className="rounded-xl border-white/20 bg-background/50 font-black">
               <SelectValue />
