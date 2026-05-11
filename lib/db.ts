@@ -11,9 +11,10 @@ import "@/models/Report"
 /**
  * Reuses a single MongoDB connection across Next.js hot reloads in development.
  */
-const MONGODB_URI = process.env.MONGODB_URI
+// Remove module-level MONGODB_URI to avoid evaluation order issues
+// const MONGODB_URI = process.env.MONGODB_URI
 
-if (!MONGODB_URI && process.env.NODE_ENV !== "test") {
+if (!process.env.MONGODB_URI && process.env.NODE_ENV !== "test") {
   console.warn(
     "[db] MONGODB_URI is not set. API routes that need the database will fail until it is configured."
   )
@@ -42,6 +43,8 @@ if (process.env.NODE_ENV !== "production") {
  * @throws If `MONGODB_URI` is missing or connection fails
  */
 export async function connectDB(): Promise<typeof mongoose> {
+  const MONGODB_URI = process.env.MONGODB_URI
+
   if (!MONGODB_URI) {
     throw new Error(
       "Please define the MONGODB_URI environment variable inside .env.local"

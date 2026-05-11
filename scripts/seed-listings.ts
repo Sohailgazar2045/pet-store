@@ -1,3 +1,6 @@
+import dotenv from "dotenv"
+dotenv.config({ path: ".env.local" })
+console.log("DEBUG: MONGODB_URI in process.env:", process.env.MONGODB_URI)
 import { connectDB } from "../lib/db"
 import { Listing } from "../models/Listing"
 import { User } from "../models/User"
@@ -21,7 +24,7 @@ const DEMO_LISTINGS = [
       country: "Pakistan"
     },
     images: [
-      { url: "https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&q=80&w=800", isCover: true }
+      { url: "https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&q=80&w=800", public_id: "demo_1" }
     ],
     tags: ["dairy", "high-yield", "sahiwal"]
   },
@@ -41,7 +44,7 @@ const DEMO_LISTINGS = [
       country: "Pakistan"
     },
     images: [
-      { url: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800", isCover: true }
+      { url: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800", public_id: "demo_2" }
     ],
     tags: ["puppy", "friendly", "purebred"]
   },
@@ -61,7 +64,7 @@ const DEMO_LISTINGS = [
       country: "Pakistan"
     },
     images: [
-      { url: "https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&q=80&w=800", isCover: true }
+      { url: "https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&q=80&w=800", public_id: "demo_3" }
     ],
     tags: ["breeding", "bull", "heavy"]
   },
@@ -81,7 +84,7 @@ const DEMO_LISTINGS = [
       country: "Pakistan"
     },
     images: [
-      { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800", isCover: true }
+      { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800", public_id: "demo_4" }
     ],
     tags: ["kitten", "fluffy", "persian"]
   }
