@@ -44,6 +44,39 @@ const sortMap = {
   views: { views: -1 as const },
 }
 
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+/**
+ * Keyword search without requiring a MongoDB text index ($text often breaks in dev).
+ * Each whitespace-separated word must match title, description, breed, or tags.
+ */
+function buildKeywordSearchClause(search: string): Record<string, unknown> | null {
+  const tokens = search
+    .trim()
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 12)
+  if (tokens.length === 0) return null
+
+  const wordClause = (term: string) => {
+    const rx = new RegExp(escapeRegex(term), "i")
+    return {
+      $or: [
+        { title: rx },
+        { description: rx },
+        { breed: rx },
+        { tags: rx },
+      ],
+    }
+  }
+
+  if (tokens.length === 1) return wordClause(tokens[0]!)
+  return { $and: tokens.map(wordClause) }
+}
+
 /**
  * Runs the public listings query (filters + pagination + population).
  */
@@ -64,11 +97,9 @@ export async function queryPublicListings(
   const limit = q.limit
   const skip = (page - 1) * limit
 
-  const filter: Record<string, unknown> = {
-    status: q.status,
-  }
+  const clauses: Record<string, unknown>[] = [{ status: q.status }]
 
-  if (q.category) filter.category = q.category
+  if (q.category) clauses.push({ category: q.category })
 
   if (q.subcategory?.trim()) {
     const subs = q.subcategory
@@ -76,25 +107,29 @@ export async function queryPublicListings(
       .map((s) => s.trim())
       .filter(Boolean)
     if (subs.length > 0) {
-      filter.subcategory = { $in: subs }
+      clauses.push({ subcategory: { $in: subs } })
     }
   }
 
   if (q.city?.trim()) {
-    filter["location.city"] = new RegExp(q.city.trim(), "i")
+    clauses.push({ "location.city": new RegExp(q.city.trim(), "i") })
   }
 
   if (q.minPrice !== undefined || q.maxPrice !== undefined) {
     const price: { $gte?: number; $lte?: number } = {}
     if (q.minPrice !== undefined) price.$gte = q.minPrice
     if (q.maxPrice !== undefined) price.$lte = q.maxPrice
-    filter.price = price
+    clauses.push({ price })
   }
 
   const search = q.search?.trim()
   if (search) {
-    filter.$text = { $search: search }
+    const kw = buildKeywordSearchClause(search)
+    if (kw) clauses.push(kw)
   }
+
+  const filter: Record<string, unknown> =
+    clauses.length === 1 ? clauses[0]! : { $and: clauses }
 
   const sort = sortMap[q.sort] ?? sortMap.newest
 

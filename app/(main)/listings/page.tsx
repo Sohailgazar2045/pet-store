@@ -15,7 +15,8 @@ export const metadata: Metadata = {
   description: "Explore our global inventory of verified livestock and pets. Filter by category, price, and location to find exactly what you're looking for.",
 }
 
-export const revalidate = 60
+/** Fresh results for every filter/search combination (avoid stale catalog cache). */
+export const dynamic = "force-dynamic"
 
 type PageProps = {
   searchParams: Record<string, string | string[] | undefined>
@@ -50,6 +51,15 @@ export default async function ListingsPage({ searchParams }: PageProps) {
   }
 
   const result = await queryPublicListings(parsed.data)
+
+  const sortLabel =
+    parsed.data.sort === "price_asc"
+      ? "Price: Low to High"
+      : parsed.data.sort === "price_desc"
+        ? "Price: High to Low"
+        : parsed.data.sort === "views"
+          ? "Most Popular"
+          : "Newest Arrivals"
 
   return (
     <div className="bg-[#fcfcfc] dark:bg-[#050505] min-h-screen">
@@ -119,7 +129,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
                </div>
                {/* Sort Select Placeholder */}
                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Sort: <span className="text-slate-900 dark:text-white cursor-pointer ml-1">Newest Arrivals</span>
+                  Sort: <span className="text-slate-900 dark:text-white ml-1">{sortLabel}</span>
                </div>
             </div>
 
