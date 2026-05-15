@@ -26,6 +26,9 @@ const userSchema = new Schema(
     isVerified: { type: Boolean, default: false },
     isBanned: { type: Boolean, default: false },
     refreshTokens: [{ type: String }],
+    // Password reset — selected explicitly only when needed
+    passwordResetToken: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
   },
   { timestamps: true }
 )

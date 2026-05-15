@@ -4,9 +4,46 @@ import { NextResponse } from "next/server"
 import { ACCESS_COOKIE_NAME } from "@/lib/auth-cookies"
 import type { UserRole } from "@/types"
 
-/**
- * Resolves the access JWT from `Authorization: Bearer` or the httpOnly access cookie.
- */
+// ---------------------------------------------------------------------------
+// In-memory rate limiter (per worker instance, good for single-node deploys).
+// For multi-instance deployments, replace with an upstash/redis backed store.
+// ---------------------------------------------------------------------------
+
+interface RateWindow {
+  count: number
+  resetAt: number
+}
+
+const rateLimitStore = new Map<string, RateWindow>()
+
+/** Returns true when the request is within the allowed rate, false when exceeded. */
+function checkRateLimit(key: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now()
+  const existing = rateLimitStore.get(key)
+
+  if (!existing || now > existing.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs })
+    return true
+  }
+
+  if (existing.count >= maxRequests) return false
+
+  existing.count++
+  return true
+}
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown"
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Auth helpers
+// ---------------------------------------------------------------------------
+
 function getAccessToken(request: NextRequest): string | null {
   const h = request.headers.get("authorization")
   if (h?.startsWith("Bearer ")) {
@@ -29,14 +66,16 @@ async function verifyAccess(
     const { payload } = await jwtVerify(token, key, { algorithms: ["HS256"] })
     const sub = typeof payload.sub === "string" ? payload.sub : ""
     const role = payload.role as UserRole | undefined
-    if (!sub || (role !== "user" && role !== "admin")) {
-      return null
-    }
+    if (!sub || (role !== "user" && role !== "admin")) return null
     return { sub, role }
   } catch {
     return null
   }
 }
+
+// ---------------------------------------------------------------------------
+// Standard responses
+// ---------------------------------------------------------------------------
 
 function jsonUnauthorized() {
   return NextResponse.json(
@@ -52,12 +91,39 @@ function jsonForbidden() {
   )
 }
 
-/**
- * Route protection: dashboard (auth), admin UI + APIs (admin role), authenticated APIs.
- */
+function jsonRateLimited() {
+  return NextResponse.json(
+    { success: false, error: "Too many requests. Please try again later.", code: "RATE_LIMITED" },
+    { status: 429, headers: { "Retry-After": "60" } }
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Middleware
+// ---------------------------------------------------------------------------
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const method = request.method
+  const ip = getClientIp(request)
+
+  // Rate limiting on auth mutation endpoints
+  if (
+    method === "POST" &&
+    (pathname === "/api/auth/login" ||
+      pathname === "/api/auth/register" ||
+      pathname === "/api/auth/forgot-password")
+  ) {
+    const limits: Record<string, { max: number; windowMs: number }> = {
+      "/api/auth/login": { max: 10, windowMs: 15 * 60 * 1000 },
+      "/api/auth/register": { max: 5, windowMs: 60 * 60 * 1000 },
+      "/api/auth/forgot-password": { max: 3, windowMs: 60 * 60 * 1000 },
+    }
+    const rule = limits[pathname]
+    if (rule && !checkRateLimit(`${ip}:${pathname}`, rule.max, rule.windowMs)) {
+      return jsonRateLimited()
+    }
+  }
 
   const token = getAccessToken(request)
 
@@ -70,16 +136,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/admin")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url))
-    }
+    if (!token) return NextResponse.redirect(new URL("/login", request.url))
     const user = await verifyAccess(token)
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", request.url))
-    }
-    if (user.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
+    if (!user) return NextResponse.redirect(new URL("/login", request.url))
+    if (user.role !== "admin") return NextResponse.redirect(new URL("/", request.url))
     return NextResponse.next()
   }
 
@@ -145,6 +205,9 @@ export const config = {
     "/api/me/:path*",
     "/admin/:path*",
     "/api/admin/:path*",
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/forgot-password",
     "/api/conversations",
     "/api/conversations/:path*",
     "/api/messages/:path*",

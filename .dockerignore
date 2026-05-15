@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+.next
+.env
+.env.local
+.env.production.local
+*.md
+Dockerfile
+docker-compose.yml
+public/uploads
+scripts

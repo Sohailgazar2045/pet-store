@@ -1,20 +1,31 @@
 import { cookies } from "next/headers"
 import { Types } from "mongoose"
 import { connectDB } from "@/lib/db"
-import { hashRefreshToken, signAccessToken, verifyRefreshToken } from "@/lib/auth"
+import {
+  hashRefreshToken,
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+} from "@/lib/auth"
 import { successJson, errorJson } from "@/lib/api-response"
 import {
   ACCESS_COOKIE_MAX_AGE_SEC,
   ACCESS_COOKIE_NAME,
+  REFRESH_COOKIE_MAX_AGE_SEC,
   REFRESH_COOKIE_NAME,
 } from "@/lib/auth-cookies"
 import { User } from "@/models/User"
-import { hasRefreshTokenHash } from "@/lib/refresh-token-store"
+import {
+  hasRefreshTokenHash,
+  removeRefreshTokenHash,
+  storeRefreshTokenHash,
+} from "@/lib/refresh-token-store"
 
 export const runtime = "nodejs"
 
 /**
- * POST /api/auth/refresh — issue a new access token using the httpOnly refresh cookie.
+ * POST /api/auth/refresh — rotate the refresh token and issue a new access token.
+ * The old refresh token is invalidated on use (token rotation).
  */
 export async function POST() {
   const jar = await cookies()
@@ -31,7 +42,7 @@ export async function POST() {
     return errorJson("Invalid or expired refresh token", 401, "INVALID_REFRESH")
   }
 
-  const hash = hashRefreshToken(refreshCookie)
+  const oldHash = hashRefreshToken(refreshCookie)
 
   try {
     await connectDB()
@@ -41,7 +52,7 @@ export async function POST() {
   }
 
   const id = new Types.ObjectId(payload.sub)
-  const valid = await hasRefreshTokenHash(id, hash)
+  const valid = await hasRefreshTokenHash(id, oldHash)
   if (!valid) {
     return errorJson("Refresh token revoked", 401, "REVOKED_REFRESH")
   }
@@ -51,6 +62,13 @@ export async function POST() {
     return errorJson("Unauthorized", 401, "UNAUTHORIZED")
   }
 
+  // Rotate: remove old hash, issue new refresh token
+  await removeRefreshTokenHash(id, oldHash)
+
+  const newRefreshToken = signRefreshToken(user._id.toString())
+  const newRefreshHash = hashRefreshToken(newRefreshToken)
+  await storeRefreshTokenHash(id, newRefreshHash)
+
   const accessToken = signAccessToken(user._id.toString(), user.role)
 
   jar.set(ACCESS_COOKIE_NAME, accessToken, {
@@ -59,6 +77,14 @@ export async function POST() {
     sameSite: "lax",
     path: "/",
     maxAge: ACCESS_COOKIE_MAX_AGE_SEC,
+  })
+
+  jar.set(REFRESH_COOKIE_NAME, newRefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: REFRESH_COOKIE_MAX_AGE_SEC,
   })
 
   return successJson({ accessToken })

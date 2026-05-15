@@ -24,9 +24,18 @@ export default function ForgotPasswordPage() {
 
     setLoading(true)
     try {
-      // Email reset will be wired to Nodemailer in a later step.
-      // For now, optimistically show success so UX is not broken.
-      await new Promise((r) => setTimeout(r, 800))
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!res.ok && res.status !== 200) {
+        const json = await res.json().catch(() => ({}))
+        setError((json as { error?: string }).error ?? "Something went wrong. Please try again.")
+        return
+      }
+
       setSubmitted(true)
     } catch {
       setError("Something went wrong. Please try again.")
